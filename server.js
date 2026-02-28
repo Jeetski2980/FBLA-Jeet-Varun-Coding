@@ -223,6 +223,7 @@ async function startServer() {
     const reviews = await readData('reviews.json');
     const users = await readData('users.json');
     const bReviews = reviews.filter(r => r.businessId === req.params.id && r.status === 'VERIFIED');
+    bReviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     
     const enrichedReviews = bReviews.map(r => {
       const user = users.find(u => u.id === r.userId);
@@ -272,6 +273,27 @@ async function startServer() {
     });
 
     res.json(enrichedReviews);
+  });
+
+  app.delete('/api/reviews/:id', async (req, res) => {
+    const reviews = await readData('reviews.json');
+    const filtered = reviews.filter(r => r.id !== req.params.id);
+    await writeData('reviews.json', filtered);
+    res.json({ message: 'Review deleted' });
+  });
+
+  app.post('/api/reviews/:id/reply', async (req, res) => {
+    const { reply } = req.body;
+    if (!reply) return res.status(400).json({ error: 'Reply text is required' });
+    
+    const reviews = await readData('reviews.json');
+    const index = reviews.findIndex(r => r.id === req.params.id);
+    if (index === -1) return res.status(404).json({ error: 'Review not found' });
+    
+    reviews[index].businessReply = reply;
+    reviews[index].repliedAt = new Date().toISOString();
+    await writeData('reviews.json', reviews);
+    res.json(reviews[index]);
   });
 
   // --- Admin API ---

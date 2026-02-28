@@ -1,57 +1,143 @@
-import React from 'react';
-import { Star, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, CheckCircle2, Trash2, MessageSquare, Send, X, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
-export default function ReviewCard({ review }) {
-  const isVerified = review.status === 'VERIFIED';
+export default function ReviewCard({ review, onDelete, onReply, isActive, onActivate }) {
+  const [isReplying, setIsReplying] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleReplyToggle = () => {
+    if (!isReplying) {
+      onActivate();
+      setIsReplying(true);
+    } else {
+      setIsReplying(false);
+      setReplyText('');
+    }
+  };
+
+  // Close reply box if another card becomes active
+  React.useEffect(() => {
+    if (!isActive && isReplying) {
+      setIsReplying(false);
+      setReplyText('');
+    }
+  }, [isActive]);
+
+  const handlePostReply = async () => {
+    if (!replyText.trim()) return;
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/reviews/${review.id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply: replyText })
+      });
+      if (res.ok) {
+        const updatedReview = await res.json();
+        onReply(updatedReview);
+        setIsReplying(false);
+        setReplyText('');
+      }
+    } catch (err) {
+      console.error('Failed to post reply:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const res = await fetch(`/api/reviews/${review.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        onDelete(review.id);
+      }
+    } catch (err) {
+      console.error('Failed to delete review:', err);
+    }
+  };
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold text-xs">
-            {review.username?.[0]?.toUpperCase() || 'U'}
-          </div>
-          <div>
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-slate-900">{review.username}</span>
-              {isVerified && (
-                <div className="flex items-center gap-0.5 text-secondary" title="Verified Review">
-                  <CheckCircle2 size={14} fill="currentColor" className="text-white" />
-                  <span className="text-[10px] font-bold uppercase tracking-tighter">Verified</span>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={10}
-                  className={i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-        <span className="text-[10px] text-slate-400">
-          {format(new Date(review.createdAt), 'MMM d, yyyy')}
+    <div className={`bg-white rounded-2xl p-5 border transition-all duration-300 shadow-sm ${isReplying ? 'border-[#c8ff57] ring-1 ring-[#c8ff57]/20' : 'border-slate-100'}`}>
+      {/* Top Row: Username & Delete */}
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm font-black text-[#c8ff57] tracking-tight">
+          @{review.username || 'anonymous'}
         </span>
+        <button
+          onClick={handleDelete}
+          className="bg-[#ff4d4d] text-white text-[11px] font-bold px-[12px] py-[4px] rounded-[16px] hover:bg-red-600 transition-colors"
+        >
+          Delete
+        </button>
       </div>
 
-      <p className="text-slate-600 text-sm leading-relaxed">
+      {/* Second Row: Stars */}
+      <div className="flex items-center gap-1 mb-3">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            size={14}
+            className={i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}
+          />
+        ))}
+      </div>
+
+      {/* Third Row: Review Text */}
+      <p className="text-slate-600 text-sm leading-relaxed mb-4">
         {review.comment}
       </p>
 
-      {review.businessName && (
-        <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            {review.businessName}
-          </span>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-            review.status === 'VERIFIED' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'
-          }`}>
-            {review.status}
-          </span>
+      {/* Fourth Row: Reply Button or Owner Response */}
+      {!review.businessReply && !isReplying && (
+        <button
+          onClick={handleReplyToggle}
+          className="bg-[#1e1e1e] text-[#c8ff57] text-[11px] font-bold px-[12px] py-[4px] rounded-[16px] flex items-center gap-1.5 hover:bg-slate-800 transition-colors"
+        >
+          <MessageSquare size={12} />
+          Reply as Business
+        </button>
+      )}
+
+      {/* Inline Reply Form */}
+      {isReplying && (
+        <div className="mt-2 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <textarea
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="Write your response as the business owner..."
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20 min-h-[80px]"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={handlePostReply}
+              disabled={isSaving || !replyText.trim()}
+              className="bg-[#c8ff57] text-[#000] text-[11px] font-bold px-[12px] py-[4px] rounded-[16px] flex items-center gap-1.5 disabled:opacity-50"
+            >
+              {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+              Post Reply
+            </button>
+            <button
+              onClick={handleReplyToggle}
+              className="bg-[#2a2a2a] text-[#aaa] text-[11px] font-bold px-[12px] py-[4px] rounded-[16px] flex items-center gap-1.5"
+            >
+              <X size={12} />
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Owner Response Display */}
+      {review.businessReply && (
+        <div className="mt-4 pt-4 border-t border-slate-50">
+          <div className="flex items-center gap-1.5 text-[#c8ff57] font-bold text-[11px] uppercase tracking-wider mb-1">
+            <span>Owner Response 🏪</span>
+          </div>
+          <p className="text-[#e0e0e0] text-sm bg-[#1a1a1a] p-3 rounded-xl leading-relaxed">
+            {review.businessReply}
+          </p>
         </div>
       )}
     </div>

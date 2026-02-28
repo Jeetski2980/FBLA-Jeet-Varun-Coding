@@ -17,10 +17,12 @@ export default function BusinessProfile() {
   // Review form state
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [reviewUsername, setReviewUsername] = useState(profile.username || '');
   const [verification, setVerification] = useState('');
   const [currentQuestion, setCurrentQuestion] = useState({ q: '', a: '' });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [activeReplyId, setActiveReplyId] = useState(null);
 
   // Post form state
   const [showPostForm, setShowPostForm] = useState(false);
@@ -58,6 +60,11 @@ export default function BusinessProfile() {
   const submitReview = async (e) => {
     e.preventDefault();
     
+    if (!reviewUsername.trim()) {
+      setMessage({ type: 'error', text: 'Please enter a username to post your review' });
+      return;
+    }
+
     setSubmitting(true);
     setMessage({ type: '', text: '' });
 
@@ -69,7 +76,7 @@ export default function BusinessProfile() {
           rating, 
           comment, 
           verificationAnswer: verification,
-          username: profile.username || 'Anonymous'
+          username: reviewUsername
         })
       });
       const data = await res.json();
@@ -90,6 +97,15 @@ export default function BusinessProfile() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleDeleteReview = (reviewId) => {
+    setReviews(prev => prev.filter(r => r.id !== reviewId));
+  };
+
+  const handleReplyReview = (updatedReview) => {
+    setReviews(prev => prev.map(r => r.id === updatedReview.id ? updatedReview : r));
+    setActiveReplyId(null);
   };
 
   const submitPost = async (e) => {
@@ -325,6 +341,18 @@ export default function BusinessProfile() {
               <h3 className="font-bold text-slate-900 mb-4">Leave a Review</h3>
               <form onSubmit={submitReview} className="space-y-4">
                 <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Username</label>
+                  <input
+                    type="text"
+                    value={reviewUsername}
+                    onChange={(e) => setReviewUsername(e.target.value)}
+                    required
+                    className="input text-sm"
+                    placeholder="Your username (e.g. @sarah_m)"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Rating</label>
                   <div className="flex gap-2">
                     {[1, 2, 3, 4, 5].map(star => (
@@ -393,7 +421,14 @@ export default function BusinessProfile() {
             <div className="space-y-4">
               {reviews.length > 0 ? (
                 reviews.map(review => (
-                  <ReviewCard key={review.id} review={review} />
+                  <ReviewCard 
+                    key={review.id} 
+                    review={review} 
+                    onDelete={handleDeleteReview}
+                    onReply={handleReplyReview}
+                    isActive={activeReplyId === review.id}
+                    onActivate={() => setActiveReplyId(review.id)}
+                  />
                 ))
               ) : (
                 <div className="bg-white rounded-2xl p-8 border border-slate-100 text-center text-slate-500">
