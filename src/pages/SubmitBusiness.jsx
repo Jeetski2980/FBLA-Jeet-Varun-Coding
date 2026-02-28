@@ -1,0 +1,388 @@
+import React, { useState, useEffect } from 'react';
+import { PlusCircle, Building2, MapPin, Globe, Loader2, CheckCircle2, ArrowRight, Tag, Calendar, Type } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { useProfile } from '../context/ProfileContext';
+import ImageUpload from '../components/ImageUpload';
+
+export default function SubmitBusiness() {
+  const { profile } = useProfile();
+  const [formData, setFormData] = useState({
+    name: '',
+    category: 'Food',
+    description: '',
+    zip: profile.zip || '',
+    address: '',
+    website: '',
+    business_image: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  // Deal form state
+  const [dealData, setDealData] = useState({
+    businessName: '',
+    title: '',
+    description: '',
+    discount: '',
+    expiresAt: '',
+    zip_code: ''
+  });
+  const [dealLoading, setDealLoading] = useState(false);
+  const [dealSuccess, setDealSuccess] = useState(false);
+
+  const categories = ['Food', 'Cafe', 'Fitness', 'Services'];
+
+  useEffect(() => {
+    if (dealSuccess) {
+      const timer = setTimeout(() => setDealSuccess(false), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [dealSuccess]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    // Website logic: prepend https:// if missing
+    let finalWebsite = formData.website.trim();
+    if (finalWebsite && !finalWebsite.startsWith('http')) {
+      finalWebsite = `https://${finalWebsite}`;
+    }
+
+    try {
+      const res = await fetch('/api/businesses/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, website: finalWebsite })
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        setSuccess(true);
+      } else {
+        setError(data.error || 'Failed to submit business');
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDealSubmit = async (e) => {
+    e.preventDefault();
+    if (!dealData.businessName || !dealData.title) return;
+
+    setDealLoading(true);
+    try {
+      const res = await fetch(`/api/deals/submit?zip=${profile.zip || '90210'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dealData)
+      });
+      if (res.ok) {
+        setDealSuccess(true);
+        setDealData({
+          businessName: '',
+          title: '',
+          description: '',
+          discount: '',
+          expiresAt: '',
+          zip_code: ''
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDealLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-3xl p-8 shadow-xl border border-green-100"
+        >
+          <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="text-green-600" size={32} />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Submission Received!</h2>
+          <p className="text-slate-500 mb-8">
+            Thank you for submitting your business. It is now live on Local Pulse.
+          </p>
+          <button
+            onClick={() => setSuccess(false)}
+            className="btn-primary w-full"
+          >
+            Submit Another
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="mb-10 text-center">
+        <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <Building2 className="text-primary" size={32} />
+        </div>
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">Business Dashboard</h1>
+        <p className="text-slate-500">Manage your presence and connect with the community.</p>
+      </div>
+
+      {/* Section 1: Submit Business */}
+      <section className="mb-16">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
+            <PlusCircle size={20} />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Submit Your Business</h2>
+        </div>
+
+        <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-100">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Business Name</label>
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="input pl-11"
+                    placeholder="e.g. Sakura Sushi"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Category</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="input"
+                >
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
+              <textarea
+                required
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="input min-h-[120px] text-sm"
+                placeholder="Tell the community what makes your business special..."
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">ZIP Code</label>
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="text"
+                    required
+                    value={formData.zip}
+                    onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+                    className="input pl-11"
+                    placeholder="12345"
+                    maxLength={5}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Website</label>
+                <div className="relative">
+                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="text"
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                    className="input pl-11"
+                    placeholder="example.com"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Address (Optional)</label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                className="input"
+                placeholder="123 Main St, City, State"
+              />
+            </div>
+
+            <div>
+              <ImageUpload
+                label="Business Image"
+                value={formData.business_image}
+                onChange={(base64) => setFormData({ ...formData, business_image: base64 })}
+                onRemove={() => setFormData({ ...formData, business_image: '' })}
+              />
+            </div>
+
+            {error && (
+              <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-sm border border-red-100">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full flex items-center justify-center gap-2 py-3"
+            >
+              {loading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
+              Submit Business
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <div className="h-px bg-slate-200 mb-16" />
+
+      {/* Section 2: Post a Deal */}
+      <section>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-brand-green/10 rounded-xl flex items-center justify-center text-slate-900">
+            <Tag size={20} />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Post a Deal</h2>
+        </div>
+
+        <div className="bg-[#f9f9f9] rounded-3xl p-8 border border-slate-200 shadow-sm">
+          <form onSubmit={handleDealSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Business Name</label>
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="text"
+                    required
+                    value={dealData.businessName}
+                    onChange={(e) => setDealData({ ...dealData, businessName: e.target.value })}
+                    className="input pl-11"
+                    placeholder="Your business name"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Deal Title</label>
+                <div className="relative">
+                  <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="text"
+                    required
+                    value={dealData.title}
+                    onChange={(e) => setDealData({ ...dealData, title: e.target.value })}
+                    className="input pl-11"
+                    placeholder="e.g. Spring Flash Sale"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
+              <textarea
+                value={dealData.description}
+                onChange={(e) => setDealData({ ...dealData, description: e.target.value })}
+                className="input min-h-[100px]"
+                placeholder="Describe what's included..."
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Discount %</label>
+                <div className="relative">
+                  <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={dealData.discount}
+                    onChange={(e) => setDealData({ ...dealData, discount: e.target.value })}
+                    className="input pl-11"
+                    placeholder="e.g. 25"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Expiry Date</label>
+                <div className="relative">
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="date"
+                    value={dealData.expiresAt}
+                    onChange={(e) => setDealData({ ...dealData, expiresAt: e.target.value })}
+                    className="input pl-11"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Zip Code</label>
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="text"
+                    value={dealData.zip_code}
+                    onChange={(e) => setDealData({ ...dealData, zip_code: e.target.value })}
+                    className="input pl-11"
+                    placeholder="e.g. 48335"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {dealSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="bg-green-50 border border-green-100 text-green-600 p-4 rounded-2xl text-sm font-bold flex items-center gap-2"
+                >
+                  <CheckCircle2 size={18} />
+                  Your deal is now live on the Deals board!
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button
+              type="submit"
+              disabled={dealLoading || !dealData.businessName || !dealData.title}
+              className="w-full bg-brand-green hover:opacity-88 disabled:opacity-50 disabled:cursor-not-allowed text-slate-900 font-bold py-4 rounded-2xl shadow-lg shadow-brand-green/20 transition-all flex items-center justify-center gap-2"
+            >
+              {dealLoading ? <Loader2 className="animate-spin" size={20} /> : <Tag size={20} />}
+              Publish Deal
+            </button>
+          </form>
+        </div>
+      </section>
+    </div>
+  );
+}

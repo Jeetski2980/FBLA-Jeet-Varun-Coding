@@ -1,0 +1,80 @@
+[
+  {
+    "id": "r1",
+    "businessId": "b1",
+    "userId": "u2",
+    "rating": 5,
+    "comment": "The sushi here is amazing! The student lunch special is such a great deal.",
+    "status": "VERIFIED",
+    "createdAt": "2026-02-15T12:00:00.000Z",
+    "verifiedAt": "2026-02-16T09:00:00.000Z"
+  },
+  {
+    "id": "r2",
+    "businessId": "b2",
+    "userId": "u2",
+    "rating": 4,
+    "comment": "Great place to study. The coffee is good, but it can get a bit crowded in the afternoons.",
+    "status": "VERIFIED",
+    "createdAt": "2026-02-16T14:00:00.000Z",
+    "verifiedAt": "2026-02-17T10:00:00.000Z"
+  },
+  {
+    "id": "r3",
+    "businessId": "b3",
+    "userId": "u2",
+    "rating": 5,
+    "comment": "Best boba in Canton! I love the brown sugar milk tea.",
+    "status": "PENDING",
+    "createdAt": "2026-02-27T10:00:00.000Z"
+  },
+  {
+    "id": "r4",
+    "businessId": "b5",
+    "userId": "u3",
+    "rating": 5,
+    "comment": "Excellent coworking space. The internet is super fast and the community is great.",
+    "status": "VERIFIED",
+    "createdAt": "2026-02-20T09:00:00.000Z",
+    "verifiedAt": "2026-02-21T11:00:00.000Z"
+  },
+  {
+    "id": "r5",
+    "businessId": "b11",
+    "userId": "u3",
+    "rating": 4,
+    "comment": "Very quiet and peaceful. Good coffee too.",
+    "status": "VERIFIED",
+    "createdAt": "2026-02-22T15:00:00.000Z",
+    "verifiedAt": "2026-02-23T12:00:00.000Z"
+  },
+  {
+    "id": "r6",
+    "businessId": "b4",
+    "userId": "u4",
+    "rating": 5,
+    "comment": "Love this gym! The 24/7 access is perfect for my early morning workouts.",
+    "status": "VERIFIED",
+    "createdAt": "2026-02-24T07:00:00.000Z",
+    "verifiedAt": "2026-02-25T08:00:00.000Z"
+  },
+  {
+    "id": "r7",
+    "businessId": "b12",
+    "userId": "u4",
+    "rating": 4,
+    "comment": "The smoothies are delicious and healthy. Great post-workout spot.",
+    "status": "PENDING",
+    "createdAt": "2026-02-27T11:00:00.000Z"
+  },
+  {
+    "id": "r8",
+    "businessId": "b8",
+    "userId": "u2",
+    "rating": 5,
+    "comment": "Classic burgers! Always hits the spot.",
+    "status": "VERIFIED",
+    "createdAt": "2026-02-27T18:00:00.000Z",
+    "verifiedAt": "2026-02-27T19:00:00.000Z"
+  }
+]

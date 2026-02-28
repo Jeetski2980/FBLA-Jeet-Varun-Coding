@@ -1,0 +1,5 @@
+{
+  "name": "Local Pulse",
+  "description": "A community feed for local businesses with AI-powered recommendations based on your bio.",
+  "requestFramePermissions": []
+}

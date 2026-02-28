@@ -1,0 +1,219 @@
+[
+  {
+    "id": "p1",
+    "businessId": "b1",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "Student Lunch Special",
+    "body": "Get 20% off any sushi roll with a valid student ID! Valid Mon-Fri, 11am-3pm.",
+    "imageUrl": "https://picsum.photos/seed/sushi/800/600",
+    "couponCode": "STUDENT20",
+    "expiresAt": "2026-12-31T23:59:59.000Z",
+    "createdAt": "2026-02-20T10:00:00.000Z"
+  },
+  {
+    "id": "p2",
+    "businessId": "b2",
+    "zip": "48187",
+    "type": "UPDATE",
+    "title": "New Seasonal Pastries!",
+    "body": "Come try our new Lavender Lemon Scones and Honey Almond Croissants. They're delicious!",
+    "imageUrl": "https://picsum.photos/seed/pastry/800/600",
+    "createdAt": "2026-02-21T09:00:00.000Z"
+  },
+  {
+    "id": "p3",
+    "businessId": "b3",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "BOGO Bubble Tea",
+    "body": "Buy one large milk tea, get one small fruit tea for FREE! This weekend only.",
+    "imageUrl": "https://picsum.photos/seed/boba/800/600",
+    "couponCode": "BOGOBLESS",
+    "expiresAt": "2026-03-01T23:59:59.000Z",
+    "createdAt": "2026-02-22T14:00:00.000Z"
+  },
+  {
+    "id": "p4",
+    "businessId": "b4",
+    "zip": "48187",
+    "type": "UPDATE",
+    "title": "New Cardio Equipment Arrived",
+    "body": "We've just installed 5 new treadmills and 3 ellipticals. Come check them out!",
+    "imageUrl": "https://picsum.photos/seed/gym/800/600",
+    "createdAt": "2026-02-23T08:00:00.000Z"
+  },
+  {
+    "id": "p5",
+    "businessId": "b5",
+    "zip": "90210",
+    "type": "DEAL",
+    "title": "First Month 50% Off",
+    "body": "Sign up for a dedicated desk this month and get your first month half off!",
+    "imageUrl": "https://picsum.photos/seed/office/800/600",
+    "couponCode": "TECHSTART",
+    "expiresAt": "2026-03-31T23:59:59.000Z",
+    "createdAt": "2026-02-24T11:00:00.000Z"
+  },
+  {
+    "id": "p6",
+    "businessId": "b6",
+    "zip": "90210",
+    "type": "UPDATE",
+    "title": "Fresh Strawberries are in!",
+    "body": "Just received a huge shipment of organic strawberries from the local farm. Sweet and juicy!",
+    "imageUrl": "https://picsum.photos/seed/fruit/800/600",
+    "createdAt": "2026-02-25T10:30:00.000Z"
+  },
+  {
+    "id": "p7",
+    "businessId": "b8",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "Family Meal Deal",
+    "body": "4 Burgers, 4 Fries, and 4 Drinks for only $39.99! Perfect for a quick family dinner.",
+    "imageUrl": "https://picsum.photos/seed/burger/800/600",
+    "couponCode": "FAMILYPACK",
+    "expiresAt": "2026-06-30T23:59:59.000Z",
+    "createdAt": "2026-02-26T17:00:00.000Z"
+  },
+  {
+    "id": "p8",
+    "businessId": "b12",
+    "zip": "48187",
+    "type": "UPDATE",
+    "title": "New Smoothie Menu",
+    "body": "We've added 5 new high-protein smoothies to our menu. Try the Peanut Butter Power!",
+    "imageUrl": "https://picsum.photos/seed/smoothie/800/600",
+    "createdAt": "2026-02-27T09:15:00.000Z"
+  },
+  {
+    "id": "p9",
+    "businessId": "b1",
+    "zip": "48187",
+    "type": "UPDATE",
+    "title": "Now Offering Delivery",
+    "body": "You can now order your favorite sushi rolls for delivery through our website!",
+    "imageUrl": "https://picsum.photos/seed/delivery/800/600",
+    "createdAt": "2026-02-27T12:00:00.000Z"
+  },
+  {
+    "id": "p10",
+    "businessId": "b2",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "Happy Hour Coffee",
+    "body": "Buy any large coffee between 2pm and 4pm and get a second one for half price!",
+    "imageUrl": "https://picsum.photos/seed/coffee/800/600",
+    "couponCode": "HAPPYCOFFEE",
+    "expiresAt": "2026-12-31T23:59:59.000Z",
+    "createdAt": "2026-02-27T14:00:00.000Z"
+  },
+  {
+    "id": "p11",
+    "businessId": "b3",
+    "zip": "48187",
+    "type": "UPDATE",
+    "title": "New Topping: Popping Boba!",
+    "body": "We now have mango and strawberry popping boba. Add some burst of flavor to your tea!",
+    "imageUrl": "https://picsum.photos/seed/topping/800/600",
+    "createdAt": "2026-02-27T15:00:00.000Z"
+  },
+  {
+    "id": "p12",
+    "businessId": "b4",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "Refer a Friend",
+    "body": "Refer a friend and get one month of membership for FREE when they sign up!",
+    "imageUrl": "https://picsum.photos/seed/referral/800/600",
+    "expiresAt": "2026-12-31T23:59:59.000Z",
+    "createdAt": "2026-02-27T16:00:00.000Z"
+  },
+  {
+    "id": "p13",
+    "businessId": "b8",
+    "zip": "48187",
+    "type": "UPDATE",
+    "title": "Outdoor Seating Now Open",
+    "body": "Enjoy your burger in the fresh air! Our patio is now open for the season.",
+    "imageUrl": "https://picsum.photos/seed/patio/800/600",
+    "createdAt": "2026-02-27T17:30:00.000Z"
+  },
+  {
+    "id": "p14",
+    "businessId": "b9",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "First Grooming 20% Off",
+    "body": "New clients get 20% off their first full grooming session. Book now!",
+    "imageUrl": "https://picsum.photos/seed/dog/800/600",
+    "couponCode": "NEWPET",
+    "expiresAt": "2026-12-31T23:59:59.000Z",
+    "createdAt": "2026-02-27T18:00:00.000Z"
+  },
+  {
+    "id": "p15",
+    "businessId": "b10",
+    "zip": "48187",
+    "type": "UPDATE",
+    "title": "Free Tire Pressure Check",
+    "body": "Stop by anytime for a free tire pressure check and top-off. Stay safe on the road!",
+    "imageUrl": "https://picsum.photos/seed/car/800/600",
+    "createdAt": "2026-02-27T19:00:00.000Z"
+  },
+  {
+    "id": "p16",
+    "businessId": "b11",
+    "zip": "90210",
+    "type": "UPDATE",
+    "title": "New Book Arrivals",
+    "body": "We've just added over 50 new titles to our library. Come browse while you sip your latte.",
+    "imageUrl": "https://picsum.photos/seed/books/800/600",
+    "createdAt": "2026-02-27T20:00:00.000Z"
+  },
+  {
+    "id": "p17",
+    "businessId": "b12",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "Post-Workout Special",
+    "body": "Show your gym check-in and get $2 off any smoothie! Valid daily.",
+    "imageUrl": "https://picsum.photos/seed/workout/800/600",
+    "expiresAt": "2026-12-31T23:59:59.000Z",
+    "createdAt": "2026-02-27T21:00:00.000Z"
+  },
+  {
+    "id": "p18",
+    "businessId": "b1",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "Late Night Sushi",
+    "body": "All rolls 30% off after 9pm! Dine-in only.",
+    "imageUrl": "https://picsum.photos/seed/latenight/800/600",
+    "expiresAt": "2026-12-31T23:59:59.000Z",
+    "createdAt": "2026-02-27T21:30:00.000Z"
+  },
+  {
+    "id": "p19",
+    "businessId": "b2",
+    "zip": "48187",
+    "type": "UPDATE",
+    "title": "Live Music Saturday",
+    "body": "Join us this Saturday at 7pm for live acoustic music from local artists.",
+    "imageUrl": "https://picsum.photos/seed/music/800/600",
+    "createdAt": "2026-02-27T22:00:00.000Z"
+  },
+  {
+    "id": "p20",
+    "businessId": "b3",
+    "zip": "48187",
+    "type": "DEAL",
+    "title": "Student Discount Daily",
+    "body": "Students get 10% off their entire order every day with valid ID.",
+    "imageUrl": "https://picsum.photos/seed/student/800/600",
+    "couponCode": "STUDENT10",
+    "expiresAt": "2026-12-31T23:59:59.000Z",
+    "createdAt": "2026-02-27T22:30:00.000Z"
+  }
+]
