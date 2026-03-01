@@ -7,12 +7,14 @@ import GlobalUI from './components/GlobalUI';
 import OnboardingModal from './components/OnboardingModal';
 
 // Pages
+import Home from './pages/Home';
 import Feed from './pages/Feed';
 import Explore from './pages/Explore';
 import Deals from './pages/Deals';
 import BusinessProfile from './pages/BusinessProfile';
 import Profile from './pages/Profile';
 import SubmitBusiness from './pages/SubmitBusiness';
+import PostDeal from './pages/PostDeal';
 import Admin from './pages/Admin';
 
 export default function App() {
@@ -20,29 +22,30 @@ export default function App() {
     <ProfileProvider>
       <UIProvider>
         <Router>
-          <div className="min-h-screen flex flex-col bg-[#0a0a0a]">
+          <div className="min-h-screen flex flex-col bg-bg">
             <Navbar />
             <main className="flex-1">
               <Routes>
-                <Route path="/" element={<Feed />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/feed" element={<Feed />} />
                 <Route path="/explore" element={<Explore />} />
                 <Route path="/deals" element={<Deals />} />
                 <Route path="/business/:id" element={<BusinessProfile />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/submit" element={<SubmitBusiness />} />
+                <Route path="/post-deal" element={<PostDeal />} />
                 <Route path="/admin" element={<Admin />} />
-                <Route path="*" element={<Explore />} />
+                <Route path="*" element={<Home />} />
               </Routes>
             </main>
-            <footer className="bg-[#111] border-t border-white/5 py-12 mt-12">
+            <footer className="bg-white/5 border-t border-white/10 py-12 mt-12">
               <div className="max-w-5xl mx-auto px-4 text-center">
-                <p className="text-slate-500 text-sm font-medium">
-                  © 2026 Local Pulse. Supporting local, one post at a time.
+                <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">
+                  © 2026 Local Pulse • Community First
                 </p>
               </div>
             </footer>
             <GlobalUI />
-            <OnboardingModal />
           </div>
         </Router>
       </UIProvider>

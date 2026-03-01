@@ -48,7 +48,7 @@ export default function ImageUpload({ value, onChange, onRemove, label, classNam
 
   return (
     <div className={className}>
-      {label && <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{label}</label>}
+      {label && <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">{label}</label>}
       <AnimatePresence mode="wait">
         {value ? (
           <motion.div
@@ -56,7 +56,7 @@ export default function ImageUpload({ value, onChange, onRemove, label, classNam
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="relative aspect-video rounded-2xl overflow-hidden border border-slate-200 group"
+            className="relative aspect-video rounded-2xl overflow-hidden border border-white/20 group"
           >
             <img src={value} alt="Preview" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -81,7 +81,7 @@ export default function ImageUpload({ value, onChange, onRemove, label, classNam
             onClick={() => fileInputRef.current?.click()}
             className={`
               relative aspect-video rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-3
-              ${isDragging ? 'border-primary bg-primary/5 scale-[1.02]' : 'border-slate-200 hover:border-primary/50 hover:bg-slate-50'}
+              ${isDragging ? 'border-primary bg-primary/5 scale-[1.02]' : 'border-white/20 hover:border-primary/50 hover:bg-white/5'}
             `}
           >
             <input
@@ -91,12 +91,12 @@ export default function ImageUpload({ value, onChange, onRemove, label, classNam
               accept="image/jpeg,image/png,image/webp,image/gif"
               className="hidden"
             />
-            <div className={`p-4 rounded-2xl ${isDragging ? 'bg-primary/10 text-primary' : 'bg-slate-100 text-slate-400'}`}>
+            <div className={`p-4 rounded-2xl ${isDragging ? 'bg-primary/10 text-primary' : 'bg-white/10 text-white/50'}`}>
               <Upload size={32} />
             </div>
             <div className="text-center">
-              <p className="text-sm font-bold text-slate-900">Drag & drop image</p>
-              <p className="text-xs text-slate-500 mt-1">or click to browse</p>
+              <p className="text-sm font-bold text-white">Drag & drop image</p>
+              <p className="text-xs text-white/60 mt-1">or click to browse</p>
             </div>
           </motion.div>
         )}

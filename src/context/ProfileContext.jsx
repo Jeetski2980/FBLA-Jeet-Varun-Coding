@@ -5,7 +5,16 @@ const ProfileContext = createContext(null);
 export function ProfileProvider({ children }) {
   const [profile, setProfile] = useState(() => {
     const saved = localStorage.getItem('local_pulse_profile');
-    return saved ? JSON.parse(saved) : { zip: '', bio: '', username: '', bookmarks: [] };
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return {
+        zip: parsed.zip || '',
+        bio: parsed.bio || '',
+        username: parsed.username || '',
+        bookmarks: parsed.bookmarks || []
+      };
+    }
+    return { zip: '', bio: '', username: '', bookmarks: [] };
   });
 
   useEffect(() => {

@@ -36,10 +36,10 @@ export default function Admin() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-12">
         <h1 className="text-4xl font-black text-white flex items-center gap-4 tracking-tight">
-          <ShieldCheck className="text-[#c8ff57]" size={40} />
+          <ShieldCheck className="text-white/50" size={40} />
           Admin Panel
         </h1>
-        <p className="text-slate-500 mt-2 font-medium">Review and verify community contributions</p>
+        <p className="text-white/70 mt-2 font-medium">Review and verify community contributions</p>
       </div>
 
       <section>
@@ -49,18 +49,18 @@ export default function Admin() {
         
         {loading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin text-[#c8ff57]" size={40} />
+            <Loader2 className="animate-spin text-white/50" size={40} />
           </div>
         ) : reviews.length > 0 ? (
           <div className="grid gap-6">
             {reviews.map(review => (
-              <div key={review.id} className="bg-[#111] rounded-[32px] p-8 border border-white/5 shadow-2xl">
+              <div key={review.id} className="bg-white/10 rounded-[32px] p-8 border border-white/20 shadow-2xl">
                 <div className="flex flex-col md:flex-row justify-between gap-8">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-4">
                       <span className="text-sm font-black text-white">@{review.username}</span>
                       <span className="text-white/10">•</span>
-                      <span className="text-[10px] font-black text-black uppercase tracking-[0.2em] bg-[#c8ff57] px-3 py-1 rounded-full">
+                      <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] bg-primary px-3 py-1 rounded-full">
                         {review.businessName}
                       </span>
                     </div>
@@ -70,14 +70,14 @@ export default function Admin() {
                         <Star
                           key={i}
                           size={16}
-                          className={i < review.rating ? 'text-[#c8ff57] fill-[#c8ff57]' : 'text-slate-800'}
+                          className={i < review.rating ? 'text-primary fill-primary' : 'text-white/20'}
                         />
                       ))}
                     </div>
 
-                    <p className="text-slate-400 text-lg mb-6 italic leading-relaxed">"{review.comment}"</p>
+                    <p className="text-white/70 text-lg mb-6 italic leading-relaxed">"{review.comment}"</p>
                     
-                    <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">
                       Submitted on {format(new Date(review.createdAt), 'MMM d, yyyy HH:mm')}
                     </span>
                   </div>
@@ -85,14 +85,14 @@ export default function Admin() {
                   <div className="flex md:flex-col gap-3 justify-end min-w-[140px]">
                     <button
                       onClick={() => verifyReview(review.id)}
-                      className="flex items-center justify-center gap-2 px-6 py-3 bg-[#c8ff57] text-black rounded-2xl text-xs font-black transition-all shadow-lg shadow-[#c8ff57]/10 hover:opacity-90"
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-xs font-black transition-all shadow-lg shadow-primary/20 hover:opacity-90 hover:scale-105 active:scale-95"
                     >
                       <CheckCircle2 size={18} />
                       VERIFY
                     </button>
                     <button
                       onClick={() => deleteReview(review.id)}
-                      className="flex items-center justify-center gap-2 px-6 py-3 bg-white/5 text-slate-400 rounded-2xl text-xs font-black transition-all border border-white/10 hover:bg-white/10"
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-white/5 text-white/50 rounded-2xl text-xs font-black transition-all border border-white/20 hover:bg-white/10 hover:scale-105 active:scale-95"
                     >
                       <Trash2 size={18} />
                       DELETE
@@ -103,9 +103,9 @@ export default function Admin() {
             ))}
           </div>
         ) : (
-          <div className="bg-[#111] rounded-[40px] p-16 border border-white/5 text-center shadow-2xl">
+          <div className="bg-white/10 rounded-[40px] p-16 border border-white/20 text-center shadow-2xl">
             <p className="text-white font-black text-xl mb-2">No pending reviews to verify.</p>
-            <p className="text-slate-500 font-medium">Great job keeping the loop clean!</p>
+            <p className="text-white/60 font-medium">Great job keeping the loop clean!</p>
           </div>
         )}
       </section>

@@ -2,22 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { useUI } from '../context/UIContext';
-import { Star, MapPin, Globe, Loader2, MessageSquare, CheckCircle2, Send, User, PlusCircle, Tag, Megaphone, Info, Bookmark } from 'lucide-react';
+import { Star, MapPin, Globe, Loader2, MessageSquare, CheckCircle2, Send, User, PlusCircle, Tag, Megaphone, Info } from 'lucide-react';
 import ReviewCard from '../components/ReviewCard';
 import FeedCard from '../components/FeedCard';
 import { VERIFICATION_QUESTIONS } from '../constants';
 
 export default function BusinessProfile() {
   const { id } = useParams();
-  const { profile, toggleBookmark } = useProfile();
+  const { profile } = useProfile();
   const { showToast } = useUI();
   const [business, setBusiness] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const isBookmarked = profile.bookmarks?.includes(id);
-
   // Review form state
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -57,11 +55,6 @@ export default function BusinessProfile() {
       setPosts(pData);
       setLoading(false);
     }).catch(() => setLoading(false));
-  };
-
-  const handleBookmark = () => {
-    toggleBookmark(id);
-    showToast(isBookmarked ? 'Bookmark removed' : 'Bookmarked! 🔖');
   };
 
   const submitReview = async (e) => {
@@ -146,20 +139,22 @@ export default function BusinessProfile() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-40">
-        <Loader2 className="animate-spin text-[#c8ff57] mb-4" size={40} />
-        <p className="text-slate-500 font-medium">Loading business profile...</p>
+        <Loader2 className="animate-spin text-primary mb-4" size={40} />
+        <p className="text-white/60 font-medium">Loading business profile...</p>
       </div>
     );
   }
 
   if (!business) return <div className="text-center py-20 text-white">Business not found.</div>;
 
+  const isOwner = business.createdByUsername === (profile.username || 'Anonymous');
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Header Section */}
-      <div className="bg-[#111] rounded-[40px] p-8 border border-white/5 shadow-2xl mb-8">
+      <div className="bg-white/10 rounded-[40px] p-8 border border-white/20 shadow-2xl mb-8">
         <div className="flex flex-col md:flex-row gap-10 items-start">
-          <div className="w-full md:w-1/3 aspect-square rounded-[32px] overflow-hidden bg-white/5 flex items-center justify-center relative">
+          <div className="w-full md:w-1/3 aspect-square rounded-[32px] overflow-hidden bg-white/10 flex items-center justify-center relative">
             {business.imageUrl ? (
               <img
                 src={business.imageUrl}
@@ -168,32 +163,22 @@ export default function BusinessProfile() {
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="flex flex-col items-center justify-center text-slate-700">
+              <div className="flex flex-col items-center justify-center text-white/20">
                 <PlusCircle size={48} className="mb-2 opacity-20" />
                 <span className="text-xs font-bold uppercase tracking-widest opacity-40">No Image</span>
               </div>
             )}
-            <button 
-              onClick={handleBookmark}
-              className={`absolute top-4 right-4 p-3 rounded-2xl backdrop-blur-md transition-all border ${
-                isBookmarked 
-                  ? 'bg-[#c8ff57] text-black border-[#c8ff57] shadow-lg' 
-                  : 'bg-black/40 text-white border-white/20 hover:bg-black/60'
-              }`}
-            >
-              <Bookmark size={20} fill={isBookmarked ? "currentColor" : "none"} />
-            </button>
           </div>
           
           <div className="flex-1">
             <div className="flex items-center justify-between mb-6">
-              <span className="text-[10px] font-black text-black uppercase tracking-[0.2em] bg-[#c8ff57] px-4 py-1.5 rounded-full shadow-lg shadow-[#c8ff57]/10">
+              <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] bg-primary px-4 py-1.5 rounded-full shadow-lg shadow-primary/10">
                 {business.category}
               </span>
-              {business.createdByUsername === (profile.username || 'Anonymous') && (
+              {isOwner && (
                 <button 
                   onClick={() => setShowPostForm(!showPostForm)}
-                  className="text-xs font-bold text-[#c8ff57] flex items-center gap-2 hover:opacity-80 transition-opacity"
+                  className="text-xs font-bold text-white/60 flex items-center gap-2 hover:text-white transition-all active:scale-95"
                 >
                   <Megaphone size={16} />
                   Post Update
@@ -204,24 +189,24 @@ export default function BusinessProfile() {
             <h1 className="text-5xl font-black text-white mb-4 tracking-tight">{business.name}</h1>
             
             <div className="flex items-center gap-6 mb-8">
-              <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
-                <Star size={20} className="text-[#c8ff57] fill-[#c8ff57]" />
+              <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-2xl border border-white/20">
+                <Star size={20} className="text-primary fill-primary" />
                 <span className="text-xl font-black text-white">{business.avgRating.toFixed(1)}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-500">
+              <div className="flex items-center gap-2 text-white/60">
                 <MessageSquare size={18} />
                 <span className="text-sm font-bold uppercase tracking-widest">{business.reviewCount} Reviews</span>
               </div>
             </div>
 
-            <p className="text-slate-400 text-lg mb-10 leading-relaxed max-w-2xl">
+            <p className="text-white/70 text-lg mb-10 leading-relaxed max-w-2xl">
               {business.description}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="flex items-center gap-4 text-slate-300">
-                <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
-                  <MapPin size={20} className="text-[#c8ff57]" />
+              <div className="flex items-center gap-4 text-white/80">
+                <div className="p-3 bg-white/10 rounded-2xl border border-white/20">
+                  <MapPin size={20} className="text-white/50" />
                 </div>
                 <span className="font-medium">{business.address || business.zip}</span>
               </div>
@@ -230,10 +215,10 @@ export default function BusinessProfile() {
                   href={business.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 text-slate-300 hover:text-[#c8ff57] transition-colors"
+                  className="flex items-center gap-4 text-white/80 hover:text-white transition-colors group/link"
                 >
-                  <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
-                    <Globe size={20} className="text-[#c8ff57]" />
+                  <div className="p-3 bg-white/10 rounded-2xl border border-white/20 group-hover/link:border-white/40 transition-all">
+                    <Globe size={20} className="text-white/50" />
                   </div>
                   <span className="font-medium underline underline-offset-4">{business.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
                 </a>
@@ -245,65 +230,65 @@ export default function BusinessProfile() {
 
       {/* Business Owner Post Form */}
       {showPostForm && (
-        <div className="bg-[#111] border border-[#c8ff57]/30 rounded-[40px] p-10 mb-8 shadow-2xl">
+        <div className="bg-white/10 border border-white/20 rounded-[40px] p-10 mb-8 shadow-2xl">
           <h2 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
-            <Megaphone className="text-[#c8ff57]" size={28} />
+            <Megaphone className="text-white/50" size={28} />
             Post to Community Feed
           </h2>
           <form onSubmit={submitPost} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Post Type</label>
+                <label className="block text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-3">Post Type</label>
                 <select 
                   value={postData.type}
                   onChange={(e) => setPostData({...postData, type: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20"
+                  className="w-full bg-white/10 border border-white/20 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
-                  <option value="UPDATE" className="bg-[#111]">General Update</option>
-                  <option value="DEAL" className="bg-[#111]">Special Deal / Coupon</option>
+                  <option value="UPDATE" className="bg-bg">General Update</option>
+                  <option value="DEAL" className="bg-bg">Special Deal / Coupon</option>
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Title</label>
+                <label className="block text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-3">Title</label>
                 <input 
                   type="text"
                   required
                   value={postData.title}
                   onChange={(e) => setPostData({...postData, title: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20"
+                  className="w-full bg-white/10 border border-white/20 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-white/30"
                   placeholder="e.g. New Seasonal Menu!"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Message</label>
+              <label className="block text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-3">Message</label>
               <textarea 
                 required
                 value={postData.body}
                 onChange={(e) => setPostData({...postData, body: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20 min-h-[120px]"
+                className="w-full bg-white/10 border border-white/20 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[120px] placeholder:text-white/30"
                 placeholder="Share the details with your neighbors..."
               />
             </div>
             {postData.type === 'DEAL' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Coupon Code (Optional)</label>
+                  <label className="block text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-3">Coupon Code (Optional)</label>
                   <input 
                     type="text"
                     value={postData.couponCode}
                     onChange={(e) => setPostData({...postData, couponCode: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20"
+                    className="w-full bg-white/10 border border-white/20 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-white/30"
                     placeholder="e.g. LOCAL20"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Expires At (Optional)</label>
+                  <label className="block text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mb-3">Expires At (Optional)</label>
                   <input 
                     type="date"
                     value={postData.expiresAt}
                     onChange={(e) => setPostData({...postData, expiresAt: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20"
+                    className="w-full bg-white/10 border border-white/20 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -311,7 +296,7 @@ export default function BusinessProfile() {
             <button 
               type="submit" 
               disabled={postSubmitting}
-              className="w-full flex items-center justify-center gap-3 font-black py-5 rounded-2xl transition-all bg-[#c8ff57] text-black shadow-lg shadow-[#c8ff57]/20 hover:opacity-90"
+              className="w-full flex items-center justify-center gap-3 font-black py-5 rounded-2xl transition-all bg-primary text-white shadow-lg shadow-primary/20 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
             >
               {postSubmitting ? <Loader2 className="animate-spin" /> : (postData.type === 'DEAL' ? <Tag size={20} /> : <PlusCircle size={20} />)}
               {postData.type === 'DEAL' ? 'Publish Deal' : 'Publish to Feed'}
@@ -339,7 +324,7 @@ export default function BusinessProfile() {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#111] rounded-[32px] p-12 border border-white/5 text-center text-slate-500">
+              <div className="bg-white/10 rounded-[32px] p-12 border border-white/20 text-center text-white/50">
                 No recent updates from this business.
               </div>
             )}
@@ -353,18 +338,18 @@ export default function BusinessProfile() {
               Reviews
             </h2>
             
-            <div className="bg-[#111] rounded-[32px] p-8 border border-white/5 shadow-xl mb-8">
-              <h3 className="font-black text-white mb-6 uppercase tracking-widest text-sm">Leave a Review</h3>
+            <div className="bg-white rounded-[32px] p-8 border border-white/20 shadow-xl mb-8">
+              <h3 className="font-black text-primary mb-6 uppercase tracking-widest text-sm">Leave a Review</h3>
               <form onSubmit={submitReview} className="space-y-6">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Rating</label>
+                  <label className="block text-[10px] font-black text-primary/60 uppercase tracking-[0.2em] mb-3">Rating</label>
                   <div className="flex gap-2">
                     {[1, 2, 3, 4, 5].map(star => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setRating(star)}
-                        className={`p-1 transition-colors ${star <= rating ? 'text-[#c8ff57]' : 'text-slate-800'}`}
+                        className={`p-1 transition-colors ${star <= rating ? 'text-primary' : 'text-primary/20'}`}
                       >
                         <Star size={28} fill={star <= rating ? 'currentColor' : 'none'} />
                       </button>
@@ -373,22 +358,22 @@ export default function BusinessProfile() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Comment</label>
+                  <label className="block text-[10px] font-black text-primary/60 uppercase tracking-[0.2em] mb-3">Comment</label>
                   <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20 min-h-[120px] text-sm"
+                    className="w-full bg-bg/5 border border-primary/10 rounded-2xl p-4 text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[120px] text-sm placeholder:text-primary/30"
                     placeholder="Share your experience..."
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Verification: {currentQuestion.q}</label>
+                    <label className="block text-[10px] font-black text-primary/60 uppercase tracking-[0.2em]">Verification: {currentQuestion.q}</label>
                     <div className="group relative">
-                      <Info size={14} className="text-slate-600 cursor-help" />
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-3 bg-slate-900 text-white text-[10px] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-2xl border border-white/10">
+                      <Info size={14} className="text-primary/40 cursor-help" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-3 bg-primary text-white text-[10px] rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-2xl border border-white/10">
                         Verification is used to prevent bot reviews and ensure authentic community feedback.
                       </div>
                     </div>
@@ -398,14 +383,14 @@ export default function BusinessProfile() {
                     value={verification}
                     onChange={(e) => setVerification(e.target.value)}
                     required
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20 text-sm"
+                    className="w-full bg-bg/5 border border-primary/10 rounded-2xl p-4 text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-primary/30"
                     placeholder="Answer here"
                   />
                 </div>
 
                 {message.text && (
                   <div className={`p-4 rounded-2xl text-xs font-bold ${
-                    message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                    message.type === 'success' ? 'bg-green-500/10 text-green-600 border border-green-500/20' : 'bg-red-500/10 text-red-600 border border-red-500/20'
                   }`}>
                     {message.text}
                   </div>
@@ -414,7 +399,7 @@ export default function BusinessProfile() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full flex items-center justify-center gap-3 font-black py-4 rounded-2xl transition-all bg-[#c8ff57] text-black shadow-lg shadow-[#c8ff57]/20 hover:opacity-90"
+                  className="w-full flex items-center justify-center gap-3 font-black py-4 rounded-2xl transition-all bg-primary text-white shadow-lg shadow-primary/20 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {submitting ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
                   Submit Review
@@ -435,7 +420,7 @@ export default function BusinessProfile() {
                   />
                 ))
               ) : (
-                <div className="bg-[#111] rounded-[32px] p-12 border border-white/5 text-center text-slate-500">
+                <div className="bg-white/10 rounded-[32px] p-12 border border-white/20 text-center text-white/50">
                   No reviews yet. Be the first!
                 </div>
               )}

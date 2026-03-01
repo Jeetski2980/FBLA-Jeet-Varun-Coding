@@ -67,7 +67,7 @@ export default function ReviewCard({ review, onDelete, onReply, isActive, onActi
     profile.username.trim().toLowerCase() === review.reviewedBy.trim().toLowerCase();
 
   return (
-    <div className={`bg-[#111] rounded-[24px] p-6 border transition-all duration-300 shadow-xl ${isReplying ? 'border-[#c8ff57]/50 ring-1 ring-[#c8ff57]/10' : 'border-white/5'}`}>
+    <div className={`bg-white/10 rounded-[24px] p-6 border transition-all duration-300 shadow-xl ${isReplying ? 'border-white/30 ring-1 ring-white/10' : 'border-white/20'}`}>
       {/* Top Row: Username & Delete */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-black text-white tracking-tight">
@@ -89,13 +89,13 @@ export default function ReviewCard({ review, onDelete, onReply, isActive, onActi
           <Star
             key={i}
             size={16}
-            className={i < review.rating ? 'text-[#c8ff57] fill-[#c8ff57]' : 'text-slate-800'}
+            className={i < review.rating ? 'text-primary fill-primary' : 'text-white/20'}
           />
         ))}
       </div>
 
       {/* Third Row: Review Text */}
-      <p className="text-slate-400 text-sm leading-relaxed mb-6">
+      <p className="text-white/70 text-sm leading-relaxed mb-6">
         {review.comment}
       </p>
 
@@ -103,9 +103,9 @@ export default function ReviewCard({ review, onDelete, onReply, isActive, onActi
       {!review.businessReply && !isReplying && (
         <button
           onClick={handleReplyToggle}
-          className="bg-white/5 text-white text-[11px] font-black px-4 py-2 rounded-xl flex items-center gap-2 border border-white/10 hover:bg-white/10 transition-colors"
+          className="bg-white/5 text-white text-[11px] font-black px-4 py-2 rounded-xl flex items-center gap-2 border border-white/20 hover:bg-white/10 transition-all active:scale-95"
         >
-          <MessageSquare size={14} className="text-[#c8ff57]" />
+          <MessageSquare size={14} className="text-white/50" />
           REPLY AS BUSINESS
         </button>
       )}
@@ -117,20 +117,20 @@ export default function ReviewCard({ review, onDelete, onReply, isActive, onActi
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="Write your response as the business owner..."
-            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#c8ff57]/20 min-h-[100px]"
+            className="w-full bg-white/5 border border-white/20 rounded-2xl p-4 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[100px] placeholder:text-white/30"
           />
           <div className="flex gap-3">
             <button
               onClick={handlePostReply}
               disabled={isSaving || !replyText.trim()}
-              className="bg-[#c8ff57] text-black text-[11px] font-black px-4 py-2 rounded-xl flex items-center gap-2 disabled:opacity-50"
+              className="bg-primary text-white text-[11px] font-black px-4 py-2 rounded-xl flex items-center gap-2 disabled:opacity-50 hover:scale-105 active:scale-95 transition-all"
             >
               {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
               POST REPLY
             </button>
             <button
               onClick={handleReplyToggle}
-              className="bg-white/5 text-slate-400 text-[11px] font-black px-4 py-2 rounded-xl flex items-center gap-2 border border-white/10"
+              className="bg-white/5 text-white/50 text-[11px] font-black px-4 py-2 rounded-xl flex items-center gap-2 border border-white/20 hover:bg-white/10 transition-all active:scale-95"
             >
               <X size={14} />
               CANCEL
@@ -141,12 +141,12 @@ export default function ReviewCard({ review, onDelete, onReply, isActive, onActi
 
       {/* Owner Response Display */}
       {review.businessReply && (
-        <div className="mt-6 pt-6 border-t border-white/5">
+        <div className="mt-6 pt-6 border-t border-white/10">
           <div className="flex items-center gap-2 text-white font-black text-[10px] uppercase tracking-[0.2em] mb-3">
-            <CheckCircle2 size={12} className="text-[#c8ff57]" />
+            <CheckCircle2 size={12} className="text-white/50" />
             <span>Owner Response 🏪</span>
           </div>
-          <p className="text-slate-300 text-sm bg-white/5 p-4 rounded-2xl leading-relaxed border border-white/5">
+          <p className="text-white/80 text-sm bg-white/5 p-4 rounded-2xl leading-relaxed border border-white/10">
             {review.businessReply}
           </p>
         </div>

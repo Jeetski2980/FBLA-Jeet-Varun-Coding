@@ -30,7 +30,7 @@ export default function OnboardingModal() {
   if (isComplete) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/60 backdrop-blur-sm p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -40,15 +40,15 @@ export default function OnboardingModal() {
           <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Sparkles className="text-primary" size={32} />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to Local Pulse</h2>
-          <p className="text-slate-500 text-sm">
+          <h2 className="text-2xl font-black text-primary mb-2 tracking-tight">Welcome to Local Pulse</h2>
+          <p className="text-slate-600 text-sm font-medium">
             Tell us a bit about yourself to get personalized local recommendations.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+            <label className="block text-xs font-bold text-primary/60 uppercase tracking-widest mb-2 flex items-center gap-2">
               <User size={14} />
               Username
             </label>
@@ -57,13 +57,13 @@ export default function OnboardingModal() {
               placeholder="How should we call you?"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 font-medium"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+            <label className="block text-xs font-bold text-primary/60 uppercase tracking-widest mb-2 flex items-center gap-2">
               <MapPin size={14} />
               ZIP Code
             </label>
@@ -72,14 +72,14 @@ export default function OnboardingModal() {
               placeholder="e.g. 48187"
               value={zip}
               onChange={(e) => setZip(e.target.value)}
-              className="input"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 font-medium"
               maxLength={5}
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+            <label className="block text-xs font-bold text-primary/60 uppercase tracking-widest mb-2 flex items-center gap-2">
               <Sparkles size={14} />
               Your Interests (Bio)
             </label>
@@ -87,15 +87,15 @@ export default function OnboardingModal() {
               placeholder="I love cheap sushi, quiet cafes for studying, and local gyms..."
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              className="input min-h-[100px] text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-slate-900 font-medium min-h-[100px] text-sm"
               required
             />
             <p className="text-[10px] text-slate-400 mt-1">This helps our AI find the best spots for you.</p>
           </div>
 
-          {error && <p className="text-red-500 text-xs text-center">{error}</p>}
+          {error && <p className="text-red-500 text-xs text-center font-bold">{error}</p>}
 
-          <button type="submit" className="btn-primary w-full flex items-center justify-center gap-2 py-3">
+          <button type="submit" className="btn-primary w-full flex items-center justify-center gap-2 py-4 uppercase tracking-widest text-xs font-black">
             Enter the Loop
             <ArrowRight size={20} />
           </button>
