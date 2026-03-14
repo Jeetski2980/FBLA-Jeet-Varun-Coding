@@ -333,7 +333,7 @@ export default function BusinessProfile() {
               Reviews
             </h2>
             
-            <div className="bg-white rounded-[32px] p-8 border border-white/20 shadow-xl mb-8">
+            <div className="bg-purple-800 rounded-[32px] p-8 border border-white/20 shadow-xl mb-8">
               <h3 className="font-black text-white mb-6 uppercase tracking-widest text-sm">Leave a Review</h3>
               <form onSubmit={submitReview} className="space-y-6">
                 <div>
@@ -344,7 +344,7 @@ export default function BusinessProfile() {
                         key={star}
                         type="button"
                         onClick={() => setRating(star)}
-                        className={`p-1 transition-colors ${star <= rating ? 'text-white' : 'text-white'}`}
+                        className={`p-1 transition-colors ${star <= rating ? 'text-yellow-400' : 'text-white'}`}
                       >
                         <Star size={28} fill={star <= rating ? 'currentColor' : 'none'} />
                       </button>
@@ -358,7 +358,7 @@ export default function BusinessProfile() {
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     required
-                    className="w-full bg-bg/5 border border-primary/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/20 min-h-[120px] text-sm placeholder:text-white"
+                    className="w-full bg-bg/5 border border-white rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-white/20 min-h-[120px] text-sm placeholder:text-white"
                     placeholder="Share your experience..."
                   />
                 </div>
@@ -378,7 +378,7 @@ export default function BusinessProfile() {
                     value={verification}
                     onChange={(e) => setVerification(e.target.value)}
                     required
-                    className="w-full bg-bg/5 border border-primary/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm placeholder:text-white"
+                    className="w-full bg-bg/5 border border-white rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-white/20 text-sm placeholder:text-white"
                     placeholder="Answer here"
                   />
                 </div>
