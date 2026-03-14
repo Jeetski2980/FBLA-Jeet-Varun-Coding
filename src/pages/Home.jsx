@@ -1,5 +1,6 @@
 import React from 'react';
 import { Building2, Target, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Home() {
   return (
@@ -15,6 +16,12 @@ export default function Home() {
           Connecting you to the heart of your community. Discover local gems, 
           exclusive deals, and stay updated with what's happening around the corner.
         </p>
+        <Link 
+          to="/explore" 
+          className="inline-block mt-8 px-8 py-4 bg-purple-800 text-white font-black rounded-2xl transition-colors active:bg-green-600 uppercase tracking-widest text-sm"
+        >
+          Explore
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
