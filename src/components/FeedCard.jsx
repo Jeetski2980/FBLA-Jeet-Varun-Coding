@@ -59,7 +59,7 @@ export default function FeedCard({ post, onUpdate }) {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Business Name</label>
+                    <label className="block text-[10px] font-black text-white uppercase tracking-widest mb-2">Business Name</label>
                     <input
                       type="text"
                       value={editData.businessName}
@@ -68,7 +68,7 @@ export default function FeedCard({ post, onUpdate }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Deal Title</label>
+                    <label className="block text-[10px] font-black text-white uppercase tracking-widest mb-2">Deal Title</label>
                     <input
                       type="text"
                       value={editData.title}
@@ -78,7 +78,7 @@ export default function FeedCard({ post, onUpdate }) {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Description</label>
+                  <label className="block text-[10px] font-black text-white uppercase tracking-widest mb-2">Description</label>
                   <textarea
                     value={editData.body}
                     onChange={(e) => setEditData({ ...editData, body: e.target.value })}
@@ -87,7 +87,7 @@ export default function FeedCard({ post, onUpdate }) {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Discount %</label>
+                    <label className="block text-[10px] font-black text-white uppercase tracking-widest mb-2">Discount %</label>
                     <input
                       type="text"
                       value={editData.discount?.replace('%', '') || ''}
@@ -96,7 +96,7 @@ export default function FeedCard({ post, onUpdate }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Zip Code</label>
+                    <label className="block text-[10px] font-black text-white uppercase tracking-widest mb-2">Zip Code</label>
                     <input
                       type="text"
                       value={editData.zip_code || ''}
@@ -105,7 +105,7 @@ export default function FeedCard({ post, onUpdate }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Expiry Date</label>
+                    <label className="block text-[10px] font-black text-white uppercase tracking-widest mb-2">Expiry Date</label>
                     <input
                       type="date"
                       value={editData.expiresAt || ''}
@@ -118,7 +118,7 @@ export default function FeedCard({ post, onUpdate }) {
             ) : (
               <>
                 <div>
-                  <label className="block text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Title</label>
+                  <label className="block text-[10px] font-black text-white uppercase tracking-widest mb-2">Title</label>
                   <input
                     type="text"
                     value={editData.title}
@@ -127,7 +127,7 @@ export default function FeedCard({ post, onUpdate }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Caption</label>
+                  <label className="block text-[10px] font-black text-white uppercase tracking-widest mb-2">Caption</label>
                   <textarea
                     value={editData.body}
                     onChange={(e) => setEditData({ ...editData, body: e.target.value })}
@@ -181,11 +181,11 @@ export default function FeedCard({ post, onUpdate }) {
         <div className="flex-1">
           <div className="flex flex-col">
             <div className="flex items-center justify-between mb-2">
-              <div className={`text-[10px] font-black uppercase tracking-[0.3em] opacity-80 ${isDeal ? 'text-white' : 'text-white/50'}`}>
-                {post.businessName} {post.createdByUsername && <span className={isDeal ? 'text-white/60' : 'text-white/30'}>by @{post.createdByUsername}</span>}
+              <div className={`text-[10px] font-black uppercase tracking-[0.3em] opacity-80 ${isDeal ? 'text-white' : 'text-white'}`}>
+                {post.businessName} {post.createdByUsername && <span className={isDeal ? 'text-white' : 'text-white'}>by @{post.createdByUsername}</span>}
               </div>
               {!isDeal && (
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
+                <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
                   <Calendar size={12} />
                   {format(new Date(post.createdAt), 'MMM d, yyyy')}
                 </span>
@@ -197,21 +197,21 @@ export default function FeedCard({ post, onUpdate }) {
             </h3>
           </div>
           
-          <p className={`text-sm mb-6 leading-relaxed font-medium ${isDeal ? 'text-white' : 'text-white/70'}`}>
+          <p className={`text-sm mb-6 leading-relaxed font-medium ${isDeal ? 'text-white' : 'text-white'}`}>
             {post.body}
           </p>
 
           {isDeal && (
             <div className="flex flex-wrap items-center gap-6 mb-6">
               {post.zip_code && (
-                <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${isDeal ? 'text-white' : 'text-white/50'}`}>
-                  <MapPin size={14} className={isDeal ? 'text-white' : 'text-white/40'} />
+                <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${isDeal ? 'text-white' : 'text-white'}`}>
+                  <MapPin size={14} className={isDeal ? 'text-white' : 'text-white'} />
                   {post.zip_code}
                 </div>
               )}
               {post.expiresAt && (
-                <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${isDeal ? 'text-white' : 'text-white/50'}`}>
-                  <Calendar size={14} className={isDeal ? 'text-white' : 'text-white/40'} />
+                <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${isDeal ? 'text-white' : 'text-white'}`}>
+                  <Calendar size={14} className={isDeal ? 'text-white' : 'text-white'} />
                   Expires {format(new Date(post.expiresAt), 'MMMM d, yyyy')}
                 </div>
               )}
@@ -220,25 +220,25 @@ export default function FeedCard({ post, onUpdate }) {
 
           {isDeal && post.couponCode && (
             <div className="bg-white/5 border border-dashed border-white/20 rounded-2xl p-4 mb-6 flex items-center justify-between shadow-inner">
-              <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Coupon Code</span>
-              <span className="text-sm font-black text-white/60 tracking-[0.2em] uppercase">{post.couponCode}</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">Coupon Code</span>
+              <span className="text-sm font-black text-white tracking-[0.2em] uppercase">{post.couponCode}</span>
             </div>
           )}
 
           <div className="flex items-center justify-between pt-6 border-t border-white/10">
-            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
               {post.businessCategory || 'Local'}
             </span>
             {post.businessId ? (
               <Link
                 to={`/business/${post.businessId}`}
-                className="text-[10px] font-black text-white flex items-center gap-2 hover:text-white/80 transition-all uppercase tracking-widest hover:scale-105 active:scale-95"
+                className="text-[10px] font-black text-white flex items-center gap-2 hover:text-white transition-all uppercase tracking-widest hover:scale-105 active:scale-95"
               >
                 View Business
-                <ArrowRight size={16} className="text-white/40" />
+                <ArrowRight size={16} className="text-white" />
               </Link>
             ) : (
-              <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">
+              <div className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
                 Community Post
               </div>
             )}
