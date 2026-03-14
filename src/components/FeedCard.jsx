@@ -3,17 +3,25 @@ import { Link } from 'react-router-dom';
 import { Tag, Calendar, ArrowRight, MapPin, Edit2, Trash2, Check, X, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import ImageUpload from './ImageUpload';
+import { useProfile } from '../context/ProfileContext';
+import { useUI } from '../context/UIContext';
 
-export default function FeedCard({ post, onUpdate }) {
+export default function FeedCard({ post, onUpdate, onDelete }) {
+  const { profile } = useProfile();
+  const { showToast } = useUI();
   const isDeal = post.type === 'DEAL';
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ ...post });
   const [isSaving, setIsSaving] = useState(false);
 
+  const isOwner = profile.username && post.createdByUsername && 
+    profile.username.trim().toLowerCase() === post.createdByUsername.trim().toLowerCase();
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/posts/${post.id}`, {
+      const username = profile.username || '';
+      const res = await fetch(`/api/posts/${post.id}?username=${username}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editData)
@@ -22,11 +30,40 @@ export default function FeedCard({ post, onUpdate }) {
         const updated = await res.json();
         if (onUpdate) onUpdate(updated);
         setIsEditing(false);
+        showToast('Post updated successfully');
+      } else {
+        const data = await res.json();
+        showToast(data.error || 'Failed to update post');
       }
     } catch (err) {
       console.error('Failed to save post:', err);
+      showToast('Error saving post');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!window.confirm('Are you sure you want to delete this?')) return;
+    
+    try {
+      const username = profile.username || '';
+      if (!username) return;
+      
+      const res = await fetch(`/api/posts/${post.id}?username=${username}`, { method: 'DELETE' });
+      
+      if (res.ok) {
+        if (onDelete) onDelete(post.id);
+        showToast('Post deleted');
+      } else {
+        const data = await res.json();
+        showToast(data.error || 'Failed to delete post');
+      }
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+      showToast('Error deleting post');
     }
   };
 
@@ -144,14 +181,22 @@ export default function FeedCard({ post, onUpdate }) {
 
   return (
     <div className={`group relative border border-white/20 rounded-[40px] overflow-hidden transition-all duration-500 shadow-2xl hover:border-primary/40 ${isDeal ? 'bg-[#6de3c2] p-8' : 'bg-white/10 p-6'}`}>
-      <div className={`absolute ${isDeal ? 'bottom-8 right-8' : 'top-6 right-6'} z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0`}>
-        <button
-          onClick={() => setIsEditing(true)}
-          className="bg-white/5 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl flex items-center gap-2 border border-white/20 hover:bg-white/10 transition-all active:scale-95"
-        >
-          <Edit2 size={14} /> {isDeal ? 'Edit Deal' : 'Edit'}
-        </button>
-      </div>
+      {isOwner && (
+        <div className={`absolute ${isDeal ? 'bottom-8 right-8' : 'top-6 right-6'} z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0`}>
+          <button
+            onClick={() => setIsEditing(true)}
+            className="bg-white/5 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl flex items-center gap-2 border border-white/20 hover:bg-white/10 transition-all active:scale-95"
+          >
+            <Edit2 size={14} /> {isDeal ? 'Edit Deal' : 'Edit'}
+          </button>
+          <button
+            onClick={handleDelete}
+            className="bg-red-500/10 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl flex items-center gap-2 border border-red-500/20 hover:bg-red-500 transition-all active:scale-95"
+          >
+            <Trash2 size={14} /> Delete
+          </button>
+        </div>
+      )}
 
       {post.imageUrl && (
         <div className="aspect-video overflow-hidden relative mb-6 rounded-3xl shadow-2xl">

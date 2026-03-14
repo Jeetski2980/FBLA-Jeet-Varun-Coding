@@ -114,7 +114,7 @@ export default function BusinessProfile() {
       const res = await fetch(`/api/businesses/${id}/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(postData)
+        body: JSON.stringify({ ...postData, createdByUsername: profile.username })
       });
       if (res.ok) {
         setPostData({ type: 'UPDATE', title: '', body: '', imageUrl: '', couponCode: '', expiresAt: '' });
@@ -132,6 +132,10 @@ export default function BusinessProfile() {
     setPosts(prev => prev.map(p => p.id === updated.id ? updated : p));
   };
 
+  const handleDeletePost = (id) => {
+    setPosts(prev => prev.filter(p => p.id !== id));
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-40">
@@ -143,7 +147,7 @@ export default function BusinessProfile() {
 
   if (!business) return <div className="text-center py-20 text-white">Business not found.</div>;
 
-  const isOwner = business.createdByUsername === (profile.username || 'Anonymous');
+  const isOwner = (business.createdByUsername || business.createdBy) === (profile.username || 'Anonymous');
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -315,6 +319,7 @@ export default function BusinessProfile() {
                     key={post.id} 
                     post={{ ...post, businessName: business.name, businessCategory: business.category }} 
                     onUpdate={handleUpdatePost}
+                    onDelete={handleDeletePost}
                   />
                 ))}
               </div>

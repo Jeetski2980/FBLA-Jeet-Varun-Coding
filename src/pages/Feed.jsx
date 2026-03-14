@@ -26,6 +26,10 @@ export default function Feed() {
     setPosts(prev => prev.map(p => p.id === updated.id ? updated : p));
   };
 
+  const handleDeletePost = (id) => {
+    setPosts(prev => prev.filter(p => p.id !== id));
+  };
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-10">
@@ -60,6 +64,7 @@ export default function Feed() {
               key={post.id} 
               post={post} 
               onUpdate={handleUpdatePost}
+              onDelete={handleDeletePost}
             />
           ))}
         </div>

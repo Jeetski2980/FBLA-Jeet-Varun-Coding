@@ -142,7 +142,8 @@ async function startServer() {
     const business = businesses.find(b => b.id === req.params.id);
     if (!business) return res.status(404).json({ error: 'Business not found' });
 
-    if (business.createdByUsername && business.createdByUsername !== createdByUsername) {
+    const businessOwner = business.createdByUsername || business.createdBy;
+    if (businessOwner && businessOwner !== createdByUsername) {
       return res.status(403).json({ error: 'Only the business owner can post updates.' });
     }
 
@@ -167,13 +168,35 @@ async function startServer() {
   });
 
   app.put('/api/posts/:id', async (req, res) => {
+    const { username } = req.query;
     const posts = await readData('posts.json');
     const index = posts.findIndex(p => p.id === req.params.id);
     if (index === -1) return res.status(404).json({ error: 'Post not found' });
     
+    const post = posts[index];
+    if (post.createdByUsername && username && post.createdByUsername.trim().toLowerCase() !== username.trim().toLowerCase()) {
+      return res.status(403).json({ error: 'You can only edit posts that you created.' });
+    }
+
     posts[index] = { ...posts[index], ...req.body, updatedAt: new Date().toISOString() };
     await writeData('posts.json', posts);
     res.json(posts[index]);
+  });
+
+  app.delete('/api/posts/:id', async (req, res) => {
+    const { username } = req.query;
+    const posts = await readData('posts.json');
+    const post = posts.find(p => p.id === req.params.id);
+    
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+    if (post.createdByUsername && username && post.createdByUsername.trim().toLowerCase() !== username.trim().toLowerCase()) {
+      return res.status(403).json({ error: 'You can only delete posts that you created.' });
+    }
+
+    const filtered = posts.filter(p => p.id !== req.params.id);
+    await writeData('posts.json', filtered);
+    res.json({ message: 'Post deleted' });
   });
 
   app.post('/api/deals/submit', async (req, res) => {

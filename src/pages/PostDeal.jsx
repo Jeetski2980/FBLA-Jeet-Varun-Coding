@@ -31,7 +31,10 @@ export default function PostDeal() {
       const res = await fetch(`/api/deals/submit?zip=${profile.zip || '90210'}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          createdByUsername: formData.username
+        })
       });
       
       if (res.ok) {
