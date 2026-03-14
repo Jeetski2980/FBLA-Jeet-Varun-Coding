@@ -48,7 +48,7 @@ export default function ImageUpload({ value, onChange, onRemove, label, classNam
 
   return (
     <div className={className}>
-      {label && <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">{label}</label>}
+      {label && <label className="block text-xs font-bold text-white uppercase tracking-widest mb-2">{label}</label>}
       <AnimatePresence mode="wait">
         {value ? (
           <motion.div
@@ -96,12 +96,12 @@ export default function ImageUpload({ value, onChange, onRemove, label, classNam
             </div>
             <div className="text-center">
               <p className="text-sm font-bold text-white">Drag & drop image</p>
-              <p className="text-xs text-white/60 mt-1">or click to browse</p>
+              <p className="text-xs text-white mt-1">or click to browse</p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      {error && <p className="text-xs text-red-500 mt-2 font-medium">{error}</p>}
+      {error && <p className="text-xs text-white mt-2 font-medium">{error}</p>}
     </div>
   );
 }

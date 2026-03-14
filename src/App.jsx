@@ -39,7 +39,7 @@ export default function App() {
             </main>
             <footer className="bg-white/5 border-t border-white/10 py-12 mt-12">
               <div className="max-w-5xl mx-auto px-4 text-center">
-                <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">
+                <p className="text-white text-[10px] font-black uppercase tracking-[0.2em]">
                   © 2026 Local Pulse • Community First
                 </p>
               </div>

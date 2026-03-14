@@ -54,9 +54,9 @@ export default function Navbar() {
                   updateProfile({ zip: newZip });
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black text-white/40 transition-all border border-white/10 uppercase tracking-widest"
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black text-white transition-all border border-white/10 uppercase tracking-widest"
             >
-              <MapPin size={12} className="text-white/30" />
+              <MapPin size={12} className="text-white" />
               {profile.zip || 'Set ZIP'}
             </button>
 
