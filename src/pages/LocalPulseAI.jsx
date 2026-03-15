@@ -4,7 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 import { Send, Loader2, Bot, User, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const genAI = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export default function LocalPulseAI() {
   const { profile } = useProfile();
