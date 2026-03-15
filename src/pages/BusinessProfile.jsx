@@ -2,21 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProfile } from '../context/ProfileContext';
 import { useUI } from '../context/UIContext';
-import { Star, MapPin, Globe, Loader2, MessageSquare, CheckCircle2, Send, User, PlusCircle, Tag, Megaphone, Info } from 'lucide-react';
+import { Star, MapPin, Globe, Loader2, MessageSquare, CheckCircle2, Send, User, PlusCircle, Tag, Megaphone, Info, Bookmark } from 'lucide-react';
 import ReviewCard from '../components/ReviewCard';
 import FeedCard from '../components/FeedCard';
 import { VERIFICATION_QUESTIONS } from '../constants';
 
 export default function BusinessProfile() {
   const { id } = useParams();
-  const { profile } = useProfile();
+  const { profile, toggleSavedBusiness, isBusinessSaved } = useProfile();
   const { showToast } = useUI();
   const [business, setBusiness] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Review form state
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [verification, setVerification] = useState('');
@@ -25,7 +24,6 @@ export default function BusinessProfile() {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [activeReplyId, setActiveReplyId] = useState(null);
 
-  // Post form state
   const [showPostForm, setShowPostForm] = useState(false);
   const [postData, setPostData] = useState({
     type: 'UPDATE',
@@ -55,6 +53,14 @@ export default function BusinessProfile() {
       setPosts(pData);
       setLoading(false);
     }).catch(() => setLoading(false));
+  };
+
+  const handleToggleSave = () => {
+    if (!business) return;
+
+    const alreadySaved = isBusinessSaved(business.id);
+    toggleSavedBusiness(business.id);
+    showToast(alreadySaved ? 'Business removed from saved' : 'Business saved');
   };
 
   const submitReview = async (e) => {
@@ -148,10 +154,10 @@ export default function BusinessProfile() {
   if (!business) return <div className="text-center py-20 text-white">Business not found.</div>;
 
   const isOwner = (business.createdByUsername || business.createdBy) === (profile.username || 'Anonymous');
+  const saved = isBusinessSaved(business.id);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Header Section */}
       <div className="bg-white/10 rounded-[40px] p-8 border border-white/20 shadow-2xl mb-8">
         <div className="flex flex-col md:flex-row gap-10 items-start">
           <div className="w-full md:w-1/3 aspect-square rounded-[32px] overflow-hidden bg-white/10 flex items-center justify-center relative">
@@ -171,19 +177,30 @@ export default function BusinessProfile() {
           </div>
           
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
               <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] bg-primary px-4 py-1.5 rounded-full shadow-lg shadow-primary/10">
                 {business.category}
               </span>
-              {isOwner && (
-                <button 
-                  onClick={() => setShowPostForm(!showPostForm)}
-                  className="text-xs font-bold text-white flex items-center gap-2 hover:text-white transition-all active:scale-95"
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleToggleSave}
+                  className="text-xs font-bold text-white flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-2xl hover:bg-white/20 transition-all active:scale-95"
                 >
-                  <Megaphone size={16} />
-                  Post Update
+                  <Bookmark className="text-purple-800" size={16} fill={saved ? 'currentColor' : 'none'} />
+                  {saved ? 'Saved' : 'Save'}
                 </button>
-              )}
+
+                {isOwner && (
+                  <button 
+                    onClick={() => setShowPostForm(!showPostForm)}
+                    className="text-xs font-bold text-white flex items-center gap-2 hover:text-white transition-all active:scale-95"
+                  >
+                    <Megaphone size={16} />
+                    Post Update
+                  </button>
+                )}
+              </div>
             </div>
 
             <h1 tabIndex={0} className="text-5xl font-black text-white mb-4 tracking-tight">{business.name}</h1>
@@ -220,7 +237,9 @@ export default function BusinessProfile() {
                   <div className="p-3 bg-white/10 rounded-2xl border border-white/20 group-hover/link:border-white/40 transition-all">
                     <Globe size={20} className="text-white" />
                   </div>
-                  <span className="font-medium underline underline-offset-4">{business.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
+                  <span className="font-medium underline underline-offset-4">
+                    {business.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                  </span>
                 </a>
               )}
             </div>
@@ -228,7 +247,6 @@ export default function BusinessProfile() {
         </div>
       </div>
 
-      {/* Business Owner Post Form */}
       {showPostForm && (
         <div className="bg-white/10 border border-white/20 rounded-[40px] p-10 mb-8 shadow-2xl">
           <h2 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
@@ -306,7 +324,6 @@ export default function BusinessProfile() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Left Column: Posts & Deals */}
         <div className="lg:col-span-2 space-y-10">
           <section>
             <h2 className="text-2xl font-black text-white mb-8 flex items-center gap-3">
@@ -331,7 +348,6 @@ export default function BusinessProfile() {
           </section>
         </div>
 
-        {/* Right Column: Reviews */}
         <div className="space-y-10">
           <section>
             <h2 className="text-2xl font-black text-white mb-8 flex items-center gap-3">

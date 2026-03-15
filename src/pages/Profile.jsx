@@ -125,7 +125,7 @@ export default function Profile() {
 
       <div className="space-y-8">
         <div className="flex items-center gap-3">
-          <Bookmark className="text-white" size={26} />
+          <Bookmark className="text-purple-800" size={26} />
           <h2 className="text-2xl font-black text-white tracking-tight">Saved Businesses</h2>
         </div>
 
