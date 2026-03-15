@@ -134,7 +134,7 @@ export default function LocalPulseAI() {
           </button>
         </form>
         <div className="max-w-4xl mx-auto mt-4 flex items-center gap-1 text-white/60 text-[8px] font-bold normal-case tracking-normal scale-75 origin-left inline-flex">
-          <Sparkles size={7} />
+          <Sparkles size={13} />
           Powered by Gemini AI • Community Recommendations
         </div>
       </div>
