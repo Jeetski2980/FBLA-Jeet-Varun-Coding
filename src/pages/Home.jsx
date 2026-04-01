@@ -170,7 +170,7 @@ export default function Home() {
           LocalPulse
         </h1>
         <div
-          className="mx-auto max-w-2xl border-[3px] border-black text-left transition-all duration-300 ease-out"
+          className="mx-auto w-full max-w-2xl overflow-hidden border-[3px] border-black text-left transition-all duration-300 ease-out"
           style={{
             backgroundColor: '#16A34A',
             boxShadow: isIntroHovered ? '6px 6px 0 #6B21A8' : '12px 12px 0 #6B21A8',
@@ -179,11 +179,11 @@ export default function Home() {
           onMouseEnter={() => setIsIntroHovered(true)}
           onMouseLeave={() => setIsIntroHovered(false)}
         >
-          <div className="h-8 w-full border-b-[3px] border-black bg-white px-3 py-1 text-sm font-black uppercase tracking-widest text-black">
+          <div className="flex h-8 w-full items-center border-b-[3px] border-black bg-white px-3 text-sm font-black uppercase tracking-widest text-black">
             Local Community
           </div>
           <p
-            className="text-xl text-white font-medium leading-relaxed px-4 py-4"
+            className="px-4 py-4 text-xl font-medium leading-relaxed text-white"
             style={{ fontFamily: '"Margarine", cursive' }}
           >
             Connecting you to the heart of your community. Discover local gems,
@@ -192,7 +192,7 @@ export default function Home() {
         </div>
         <div className="mt-8 flex justify-center">
           <div
-            className="group relative inline-flex overflow-hidden rounded-2xl"
+            className="relative inline-flex overflow-hidden rounded-2xl"
             onMouseEnter={() => setIsStatsHovered(true)}
             onMouseLeave={() => setIsStatsHovered(false)}
           >
@@ -208,12 +208,12 @@ export default function Home() {
               className="pointer-events-none absolute inset-0 flex h-full w-full justify-center"
               style={{
                 transform: isStatsHovered
-                  ? 'skewX(-13deg) translateX(130%)'
-                  : 'skewX(-13deg) translateX(-130%)',
-                transition: 'transform 2200ms ease'
+                  ? 'skewX(-13deg) translateX(140%)'
+                  : 'skewX(-13deg) translateX(-140%)',
+                transition: 'transform 3200ms ease-in-out'
               }}
             >
-              <div className="relative h-full w-36 bg-white/20"></div>
+              <div className="h-full w-56 bg-white/20"></div>
             </div>
           </div>
         </div>
