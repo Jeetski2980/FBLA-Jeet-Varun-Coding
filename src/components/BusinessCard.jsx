@@ -8,12 +8,12 @@ export default function BusinessCard({ business, onDelete }) {
   const { profile } = useProfile();
   const { showToast } = useUI();
 
-  const cleanDomain = (url) => {
+  const cleanDomain = (url) => { // Show a shorter website label
     if (!url) return '';
     return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
   };
 
-  const handleDelete = async (e) => {
+  const handleDelete = async (e) => { // Remove this business
     e.preventDefault();
     e.stopPropagation();
     try {

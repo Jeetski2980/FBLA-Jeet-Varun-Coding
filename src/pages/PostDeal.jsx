@@ -5,7 +5,7 @@ import { useProfile } from '../context/ProfileContext';
 
 export default function PostDeal() {
   const { profile } = useProfile();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ // Deal submission form
     businessName: '',
     title: '',
     description: '',
@@ -17,7 +17,7 @@ export default function PostDeal() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => { // Send the new deal
     e.preventDefault();
     if (!formData.username.trim()) {
       setError('Please enter your username');

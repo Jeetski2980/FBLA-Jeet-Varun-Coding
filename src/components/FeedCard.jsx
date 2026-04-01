@@ -9,7 +9,7 @@ import { useUI } from '../context/UIContext';
 export default function FeedCard({ post, onUpdate, onDelete }) {
   const { profile } = useProfile();
   const { showToast } = useUI();
-  const isDeal = post.type === 'DEAL';
+  const isDeal = post.type === 'DEAL'; // Deal cards use extra fields
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ ...post });
   const [isSaving, setIsSaving] = useState(false);
@@ -17,7 +17,7 @@ export default function FeedCard({ post, onUpdate, onDelete }) {
   const isOwner = profile.username && post.createdByUsername && 
     profile.username.trim().toLowerCase() === post.createdByUsername.trim().toLowerCase();
 
-  const handleSave = async () => {
+  const handleSave = async () => { // Save edited post data
     setIsSaving(true);
     try {
       const username = profile.username || '';
@@ -43,7 +43,7 @@ export default function FeedCard({ post, onUpdate, onDelete }) {
     }
   };
 
-  const handleDelete = async (e) => {
+  const handleDelete = async (e) => { // Remove this post
     e.preventDefault();
     e.stopPropagation();
     if (!window.confirm('Are you sure you want to delete this?')) return;

@@ -3,10 +3,10 @@ import { ShieldCheck, CheckCircle2, Trash2, Loader2, Star } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function Admin() {
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState([]); // Reviews waiting on admin action
   const [loading, setLoading] = useState(true);
 
-  const fetchReviews = () => {
+  const fetchReviews = () => { // Refresh the pending list
     setLoading(true);
     fetch('/api/admin/reviews?status=PENDING')
       .then(res => res.json())

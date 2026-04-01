@@ -1,8 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GEMINI_API_KEY; // Server Gemini key
 
-export async function getRecommendations(bio, zip, businesses) {
+export async function getRecommendations(bio, zip, businesses) { // Build AI suggestions
   if (!apiKey) {
     console.warn("GEMINI_API_KEY not found. Using fallback recommendations.");
     return null;

@@ -7,7 +7,7 @@ export default function Navbar() {
   const { profile, updateProfile } = useProfile();
   const location = useLocation();
 
-  const navItems = [
+  const navItems = [ // Main nav links
     { name: 'Home', path: '/', icon: Home },
     { name: 'Explore', path: '/explore', icon: Compass },
     { name: 'Deals', path: '/deals', icon: Tag },
@@ -48,7 +48,7 @@ export default function Navbar() {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={() => {
+              onClick={() => { // Quick ZIP update
                 const newZip = prompt('Enter your ZIP code:', profile.zip);
                 if (newZip && /^\d{5}$/.test(newZip)) {
                   updateProfile({ zip: newZip });

@@ -11,9 +11,9 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
-  const [sort, setSort] = useState('Highest Rated');
+  const [sort, setSort] = useState('Highest Rated'); // Default sort order
 
-  useEffect(() => {
+  useEffect(() => { // Load businesses for the current filters
     if (!zip) return;
     setLoading(true);
     const params = new URLSearchParams({ zip, search, category, sort });

@@ -2,8 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ProfileProvider } from './context/ProfileContext';
 import { UIProvider } from './context/UIContext';
-import Navbar from './components/Navbar';
-import GlobalUI from './components/GlobalUI';
+import Navbar from './components/Navbar'; // Top navigation
+import GlobalUI from './components/GlobalUI'; // Shared UI overlays
 
 // Pages
 import Home from './pages/Home';
@@ -16,7 +16,7 @@ import SubmitBusiness from './pages/SubmitBusiness';
 import PostDeal from './pages/PostDeal';
 import Admin from './pages/Admin';
 
-export default function App() {
+export default function App() { // Main app shell
   return (
     <ProfileProvider>
       <UIProvider>

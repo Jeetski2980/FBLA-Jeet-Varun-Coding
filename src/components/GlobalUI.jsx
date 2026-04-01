@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useUI } from '../context/UIContext';
 
 export default function GlobalUI() {
-  const { toast } = useUI();
+  const { toast } = useUI(); // Active toast text
 
   return (
     <>

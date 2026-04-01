@@ -6,7 +6,7 @@ import ImageUpload from '../components/ImageUpload';
 
 export default function SubmitBusiness() {
   const { profile } = useProfile();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({ // Business submission form
     name: '',
     category: 'Food',
     address: '',
@@ -23,7 +23,7 @@ export default function SubmitBusiness() {
 
   const categories = ['Food', 'Retail', 'Services', 'Entertainment', 'Other'];
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => { // Send the business form
     e.preventDefault();
     
     if (!formData.username.trim()) {

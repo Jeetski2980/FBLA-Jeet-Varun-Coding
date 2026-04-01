@@ -4,12 +4,12 @@ import { GoogleGenAI } from "@google/genai";
 import { Send, Loader2, Bot, User, Sparkles, Volume2, Mic, MicOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const genAI = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+const genAI = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY }); // Gemini client
 
 export default function LocalPulseAI() {
   const { profile } = useProfile();
   const { zip } = profile;
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState([ // Chat history
     { role: 'assistant', content: 'Hey, I’m here to help you.' }
   ]);
   const [input, setInput] = useState('');
@@ -18,7 +18,7 @@ export default function LocalPulseAI() {
   const [businesses, setBusinesses] = useState([]);
   const messagesEndRef = useRef(null);
 
-  const speak = (text) => {
+  const speak = (text) => { // Read assistant replies out loud
     if ('speechSynthesis' in window) {
       const plainText = text.replace(/<[^>]+>/g, '');
       window.speechSynthesis.cancel();
@@ -29,7 +29,7 @@ export default function LocalPulseAI() {
     }
   };
 
-  const startListening = () => {
+  const startListening = () => { // Fill the input with speech
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Speech recognition is not supported in this browser.");
@@ -67,7 +67,7 @@ export default function LocalPulseAI() {
     }
   }, [zip]);
 
-  const handleSend = async (e) => {
+  const handleSend = async (e) => { // Send a chat message
     e.preventDefault();
     if (!input.trim() || loading) return;
 

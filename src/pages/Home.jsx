@@ -3,7 +3,7 @@ import { Target, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Home() {
-  const [stats, setStats] = useState({ users: null, businesses: null });
+  const [stats, setStats] = useState({ users: null, businesses: null }); // Live totals from the server
   const [displayStats, setDisplayStats] = useState({ users: 0, businesses: 0 });
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [isIntroHovered, setIsIntroHovered] = useState(false);
@@ -13,7 +13,7 @@ export default function Home() {
   const displayedUsersRef = useRef(0);
   const displayedBusinessesRef = useRef(0);
 
-  useEffect(() => {
+  useEffect(() => { // Load and stream homepage stats
     const controller = new AbortController();
     let eventSource;
 
@@ -97,7 +97,7 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
+  useEffect(() => { // Animate stat counters
     const animateCount = (frameRef, valueRef, key, nextValue) => {
       if (typeof nextValue !== 'number') {
         return;

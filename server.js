@@ -10,11 +10,11 @@ import { generateToken, verifyToken, isAdmin } from './server/src/middleware/aut
 import { getRecommendations } from './server/src/ai/geminiClient.js';
 import { VERIFICATION_QUESTIONS } from './src/constants.js';
 
-async function startServer() {
+async function startServer() { // Boot the API and Vite server
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
   const dataDirectory = path.join(process.cwd(), 'server', 'data');
-  const homeStatsClients = new Set();
+  const homeStatsClients = new Set(); // Open SSE connections
 
   app.use(express.json());
   app.use(cookieParser());
@@ -31,7 +31,7 @@ async function startServer() {
     return Array.isArray(businesses) ? businesses.length : 0;
   };
 
-  const getHomeStats = async () => {
+  const getHomeStats = async () => { // Combined home page totals
     const [users, businesses] = await Promise.all([
       getUserCount(),
       getBusinessCount()
@@ -40,12 +40,12 @@ async function startServer() {
     return { users, businesses };
   };
 
-  const writeSseEvent = (res, event, payload) => {
+  const writeSseEvent = (res, event, payload) => { // Send one SSE message
     res.write(`event: ${event}\n`);
     res.write(`data: ${JSON.stringify(payload)}\n\n`);
   };
 
-  const broadcastHomeStats = async () => {
+  const broadcastHomeStats = async () => { // Push fresh stats to clients
     try {
       const stats = await getHomeStats();
       for (const client of homeStatsClients) {

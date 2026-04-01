@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const ProfileContext = createContext(null);
+const ProfileContext = createContext(null); // Saved profile data
 
 export function ProfileProvider({ children }) {
-  const [profile, setProfile] = useState(() => {
+  const [profile, setProfile] = useState(() => { // Load profile from storage
     const saved = localStorage.getItem('local_pulse_profile');
     if (saved) {
       const parsed = JSON.parse(saved);
@@ -17,7 +17,7 @@ export function ProfileProvider({ children }) {
     return { zip: '', bio: '', username: '', savedBusinesses: [] };
   });
 
-  useEffect(() => {
+  useEffect(() => { // Keep profile in storage
     localStorage.setItem('local_pulse_profile', JSON.stringify(profile));
   }, [profile]);
 

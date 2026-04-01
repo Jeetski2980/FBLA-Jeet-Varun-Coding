@@ -11,7 +11,7 @@ export default function BusinessProfile() {
   const { id } = useParams();
   const { profile, toggleSavedBusiness, isBusinessSaved } = useProfile();
   const { showToast } = useUI();
-  const [business, setBusiness] = useState(null);
+  const [business, setBusiness] = useState(null); // Main business details
   const [reviews, setReviews] = useState([]);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +41,7 @@ export default function BusinessProfile() {
     setCurrentQuestion(randomQ);
   }, [id]);
 
-  const fetchData = () => {
+  const fetchData = () => { // Load the profile, reviews, and posts
     setLoading(true);
     Promise.all([
       fetch(`/api/businesses/${id}`).then(res => res.json()),
@@ -63,7 +63,7 @@ export default function BusinessProfile() {
     showToast(alreadySaved ? 'Business removed from saved' : 'Business saved');
   };
 
-  const submitReview = async (e) => {
+  const submitReview = async (e) => { // Send a new review
     e.preventDefault();
     
     if (!profile.username.trim()) {
@@ -113,7 +113,7 @@ export default function BusinessProfile() {
     setActiveReplyId(null);
   };
 
-  const submitPost = async (e) => {
+  const submitPost = async (e) => { // Publish a business update
     e.preventDefault();
     setPostSubmitting(true);
     try {

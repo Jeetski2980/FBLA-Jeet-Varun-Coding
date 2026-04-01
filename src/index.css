@@ -1,6 +1,6 @@
-@import "tailwindcss";
+@import "tailwindcss"; /* Tailwind entry */
 
-@theme {
+@theme { /* App theme tokens */
   --color-bg: #3DA6C1;
   --color-primary: #674EA7;
   --color-surface: #FFFFFF;
@@ -10,13 +10,13 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-@layer base {
+@layer base { /* Base page styles */
   body {
     @apply bg-bg text-white font-sans min-h-screen;
   }
 }
 
-@layer components {
+@layer components { /* Reusable utility classes */
   .btn-primary {
     @apply bg-primary hover:opacity-90 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md active:scale-95;
   }
@@ -31,7 +31,7 @@
   }
 }
 
-@layer utilities {
+@layer utilities { /* Custom text and heading tweaks */
   .text-white\/10, .text-white\/20, .text-white\/30, .text-white\/40, .text-white\/50, .text-white\/60, .text-white\/70, .text-white\/80, .text-white\/90 {
     color: #FFFFFF !important;
     font-size: 1.25em !important;

@@ -1,14 +1,14 @@
-const CACHE_NAME = 'localpulse-shell-v1';
+const CACHE_NAME = 'localpulse-shell-v1'; // Current cache key
 const APP_SHELL = ['/', '/site.webmanifest', '/localpulse-icon.svg'];
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', (event) => { // Cache the app shell
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', (event) => { // Clear old caches
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
@@ -21,7 +21,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', (event) => { // Serve cached responses first
   if (event.request.method !== 'GET') {
     return;
   }

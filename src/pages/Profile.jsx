@@ -6,14 +6,14 @@ import BusinessCard from '../components/BusinessCard';
 export default function Profile() {
   const { profile, updateProfile } = useProfile();
   
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // Edit mode toggle
   const [editBio, setEditBio] = useState(profile.bio || '');
   const [editZip, setEditZip] = useState(profile.zip || '');
   const [editUsername, setEditUsername] = useState(profile.username || '');
   const [savedBusinessesData, setSavedBusinessesData] = useState([]);
   const [savedLoading, setSavedLoading] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => { // Load saved businesses
     const fetchSavedBusinesses = async () => {
       if (!profile.savedBusinesses || profile.savedBusinesses.length === 0) {
         setSavedBusinessesData([]);

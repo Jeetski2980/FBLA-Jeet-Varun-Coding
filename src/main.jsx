@@ -1,9 +1,9 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
-import App from './App.jsx';
+import App from './App.jsx'; // Root app component
 import './index.css';
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) { // Register offline support
   window.addEventListener('load', () => {
     if (import.meta.env.PROD) {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
@@ -18,7 +18,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById('root')).render( // Mount the app
   <StrictMode>
     <App />
   </StrictMode>,

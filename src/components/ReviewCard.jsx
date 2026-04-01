@@ -9,7 +9,7 @@ export default function ReviewCard({ review, onDelete, onReply, isActive, onActi
   const [replyText, setReplyText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleReplyToggle = () => {
+  const handleReplyToggle = () => { // Open or close the reply box
     if (!isReplying) {
       onActivate();
       setIsReplying(true);
@@ -27,7 +27,7 @@ export default function ReviewCard({ review, onDelete, onReply, isActive, onActi
     }
   }, [isActive]);
 
-  const handlePostReply = async () => {
+  const handlePostReply = async () => { // Save the owner reply
     if (!replyText.trim()) return;
     setIsSaving(true);
     try {

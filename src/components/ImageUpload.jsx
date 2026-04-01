@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'motion/react';
 export default function ImageUpload({ value, onChange, onRemove, label, className = "" }) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null); // Hidden file picker
 
-  const handleFile = (file) => {
+  const handleFile = (file) => { // Validate and read the file
     setError('');
     const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!validTypes.includes(file.type)) {

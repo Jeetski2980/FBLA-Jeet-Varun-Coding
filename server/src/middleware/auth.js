@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'locals-loop-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || 'locals-loop-secret-key'; // Fallback JWT secret
 
 export function generateToken(user) {
   return jwt.sign(
@@ -10,7 +10,7 @@ export function generateToken(user) {
   );
 }
 
-export function verifyToken(req, res, next) {
+export function verifyToken(req, res, next) { // Check the auth cookie
   const token = req.cookies.token;
 
   if (!token) {
@@ -26,7 +26,7 @@ export function verifyToken(req, res, next) {
   }
 }
 
-export function isAdmin(req, res, next) {
+export function isAdmin(req, res, next) { // Limit access to admins
   if (req.user && req.user.role === 'ADMIN') {
     next();
   } else {

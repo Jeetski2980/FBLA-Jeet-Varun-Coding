@@ -6,10 +6,10 @@ import { Loader2, Tag } from 'lucide-react';
 export default function Deals() {
   const { profile } = useProfile();
   const { zip } = profile;
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([]); // Deal posts for this ZIP
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => { // Load local deals
     if (!zip) return;
     setLoading(true);
     fetch(`/api/feed?zip=${zip}&type=DEAL`)

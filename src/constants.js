@@ -1,4 +1,4 @@
-export const VERIFICATION_QUESTIONS = [
+export const VERIFICATION_QUESTIONS = [ // Simple bot-check questions
   { q: "What is 2 + 2?", a: "4" },
   { q: "What is 5 + 3?", a: "8" },
   { q: "What is 10 - 4?", a: "6" },
