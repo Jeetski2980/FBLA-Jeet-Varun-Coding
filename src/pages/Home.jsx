@@ -6,6 +6,8 @@ export default function Home() {
   const [stats, setStats] = useState({ users: null, businesses: null });
   const [displayStats, setDisplayStats] = useState({ users: 0, businesses: 0 });
   const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [isIntroHovered, setIsIntroHovered] = useState(false);
+  const [isStatsHovered, setIsStatsHovered] = useState(false);
   const usersFrameRef = useRef(null);
   const businessesFrameRef = useRef(null);
   const displayedUsersRef = useRef(0);
@@ -167,21 +169,52 @@ export default function Home() {
         <h1 tabIndex={0} className="text-[4.875rem] font-black text-white mb-6 tracking-tighter leading-none">
           LocalPulse
         </h1>
-        <p
-          className="text-xl text-white font-medium max-w-2xl mx-auto leading-relaxed"
-          style={{ fontFamily: '"Margarine", cursive' }}
+        <div
+          className="mx-auto max-w-2xl border-[3px] border-black text-left transition-all duration-300 ease-out"
+          style={{
+            backgroundColor: '#16A34A',
+            boxShadow: isIntroHovered ? '6px 6px 0 #6B21A8' : '12px 12px 0 #6B21A8',
+            transform: isIntroHovered ? 'translate(0, 0)' : 'translate(-6px, -6px)'
+          }}
+          onMouseEnter={() => setIsIntroHovered(true)}
+          onMouseLeave={() => setIsIntroHovered(false)}
         >
-          Connecting you to the heart of your community. Discover local gems, 
-          exclusive deals, and stay updated with what's happening around the corner.
-        </p>
+          <div className="h-8 w-full border-b-[3px] border-black bg-white px-3 py-1 text-sm font-black uppercase tracking-widest text-black">
+            Local Community
+          </div>
+          <p
+            className="text-xl text-white font-medium leading-relaxed px-4 py-4"
+            style={{ fontFamily: '"Margarine", cursive' }}
+          >
+            Connecting you to the heart of your community. Discover local gems,
+            exclusive deals, and stay updated with what's happening around the corner.
+          </p>
+        </div>
         <div className="mt-8 flex justify-center">
-          <div className="inline-flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/20 bg-purple-800 px-8 py-5 shadow-lg">
-            <span className="text-[2.5rem] font-black uppercase tracking-[0.2em] text-white leading-none">
-              {userCountLabel}
-            </span>
-            <span className="text-[2.5rem] font-black uppercase tracking-[0.2em] text-white leading-none">
-              {businessCountLabel}
-            </span>
+          <div
+            className="group relative inline-flex overflow-hidden rounded-2xl"
+            onMouseEnter={() => setIsStatsHovered(true)}
+            onMouseLeave={() => setIsStatsHovered(false)}
+          >
+            <div className="inline-flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/20 bg-purple-800 px-8 py-5 shadow-lg">
+              <span className="text-[2.5rem] font-black uppercase tracking-[0.2em] text-white leading-none">
+                {userCountLabel}
+              </span>
+              <span className="text-[2.5rem] font-black uppercase tracking-[0.2em] text-white leading-none">
+                {businessCountLabel}
+              </span>
+            </div>
+            <div
+              className="pointer-events-none absolute inset-0 flex h-full w-full justify-center"
+              style={{
+                transform: isStatsHovered
+                  ? 'skewX(-13deg) translateX(130%)'
+                  : 'skewX(-13deg) translateX(-130%)',
+                transition: 'transform 2200ms ease'
+              }}
+            >
+              <div className="relative h-full w-36 bg-white/20"></div>
+            </div>
           </div>
         </div>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
