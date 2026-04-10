@@ -1,4 +1,5 @@
 # Local Pulse - Community Feed MVP
+## Website: localcommunitypulse.org [Visit Website](https://www.localcommunitypulse.org/)
 
 Think Instagram meets Yelp for local businesses. Discover what's happening in your neighborhood with AI-powered recommendations.
 
