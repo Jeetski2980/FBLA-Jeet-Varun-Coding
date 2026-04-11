@@ -1,146 +1,109 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useProfile } from '../context/ProfileContext';
 import FeedCard from '../components/FeedCard';
-import { Loader2, MapPinned, Tag } from 'lucide-react';
+import { Loader2, Tag } from 'lucide-react';
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-const GOOGLE_MAPS_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
-const GOOGLE_MAPS_SCRIPT_ID = 'google-maps-javascript-api';
-const GOOGLE_MAPS_PROMISE_KEY = '__localDealsGoogleMapsPromise';
-const BUSINESS_FILE_PATH = '/api/businesses';
-const DEFAULT_MAP_ID = GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID';
-const SCHOOLCRAFT_COLLEGE_CENTER = { lat: 42.4224, lng: -83.4277 };
-const SCHOOLCRAFT_LOCATION_LABEL = 'Schoolcraft College, Livonia, MI';
-const LOCAL_BUSINESS_RADIUS_MILES = 35;
-const geocodeCache = new Map();
+const LEAFLET_SCRIPT_ID = 'localpulse-leaflet-script';
+const LEAFLET_STYLESHEET_ID = 'localpulse-leaflet-stylesheet';
+const LEAFLET_PROMISE_KEY = '__localpulseLeafletPromise';
+const MAP_CENTER = [42.4224, -83.4277];
+const MAP_ZOOM = 13;
+const LOCAL_MARKERS = [
+  { name: 'Bates Burgers', lat: 42.4467, lng: -83.3672 },
+  { name: 'Joe\'s Produce Gourmet Market', lat: 42.4255, lng: -83.4348 },
+  { name: 'Buddy\'s Pizza', lat: 42.3965, lng: -83.3737 },
+  { name: 'La Bistecca Italian Grille', lat: 42.4338, lng: -83.4256 },
+  { name: 'Anna\'s House', lat: 42.4075, lng: -83.4334 },
+  { name: 'Michi Ramen', lat: 42.4324, lng: -83.4224 },
+  { name: 'One Under Craft Beer Fest', lat: 42.4594, lng: -83.3769 },
+  { name: 'Biggby Coffee', lat: 42.4206, lng: -83.4298 },
+  { name: 'Thai Ocha', lat: 42.4026, lng: -83.3732 },
+  { name: 'Thomas\'s Family Dining', lat: 42.4157, lng: -83.4271 },
+  { name: 'Las Palapas', lat: 42.4318, lng: -83.4175 },
+  { name: 'Shish Kabob Express', lat: 42.4288, lng: -83.4196 },
+  { name: 'BJ\'s Restaurant & Brewhouse', lat: 42.4625, lng: -83.3714 },
+  { name: 'Canton Brew Works', lat: 42.3082, lng: -83.4825 },
+  { name: 'Noodles & Company', lat: 42.4591, lng: -83.3728 },
+  { name: 'The Bagel Factory', lat: 42.4305, lng: -83.4209 },
+  { name: 'Granite City Food & Brewery', lat: 42.4636, lng: -83.3696 },
+  { name: 'Leo\'s Coney Island', lat: 42.4552, lng: -83.4098 },
+  { name: 'Dave & Buster\'s', lat: 42.4632, lng: -83.3732 },
+  { name: 'Tropical Smoothie Cafe', lat: 42.4196, lng: -83.4311 },
+];
 
-function escapeHtml(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
-function looksLocalToSchoolcraft(business) {
-  const address = String(business?.address ?? '').toLowerCase();
-  const zip = String(business?.zip ?? '').trim();
-
-  return address.includes(', mi') || zip.startsWith('48');
-}
-
-function getDistanceInMiles(from, to) {
-  const toRadians = (degrees) => (degrees * Math.PI) / 180;
-  const earthRadiusMiles = 3958.8;
-  const deltaLat = toRadians(to.lat - from.lat);
-  const deltaLng = toRadians(to.lng - from.lng);
-  const startLat = toRadians(from.lat);
-  const endLat = toRadians(to.lat);
-
-  const haversine =
-    Math.sin(deltaLat / 2) ** 2 +
-    Math.cos(startLat) * Math.cos(endLat) * Math.sin(deltaLng / 2) ** 2;
-
-  return 2 * earthRadiusMiles * Math.asin(Math.sqrt(haversine));
-}
-
-function loadGoogleMapsApi() {
-  if (!GOOGLE_MAPS_API_KEY) {
-    return Promise.reject(new Error('Missing VITE_GOOGLE_MAPS_API_KEY.'));
+function loadLeaflet() {
+  if (window.L?.map) {
+    return Promise.resolve(window.L);
   }
 
-  if (window.google?.maps?.importLibrary) {
-    return Promise.resolve(window.google.maps);
+  if (window[LEAFLET_PROMISE_KEY]) {
+    return window[LEAFLET_PROMISE_KEY];
   }
 
-  if (window[GOOGLE_MAPS_PROMISE_KEY]) {
-    return window[GOOGLE_MAPS_PROMISE_KEY];
-  }
+  window[LEAFLET_PROMISE_KEY] = new Promise((resolve, reject) => {
+    let stylesheet = document.getElementById(LEAFLET_STYLESHEET_ID);
+    let script = document.getElementById(LEAFLET_SCRIPT_ID);
 
-  window[GOOGLE_MAPS_PROMISE_KEY] = new Promise((resolve, reject) => {
-    const callbackName = '__localDealsInitGoogleMaps';
-    const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID);
-
-    window[callbackName] = () => {
-      delete window[callbackName];
-      resolve(window.google.maps);
+    const cleanup = () => {
+      script?.removeEventListener('load', handleLoad);
+      script?.removeEventListener('error', handleError);
     };
 
-    if (existingScript) {
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.id = GOOGLE_MAPS_SCRIPT_ID;
-    script.async = true;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&loading=async&v=weekly&libraries=geocoding,marker&map_ids=${encodeURIComponent(DEFAULT_MAP_ID)}&callback=${callbackName}`;
-    script.onerror = () => {
-      delete window[callbackName];
-      delete window[GOOGLE_MAPS_PROMISE_KEY];
-      reject(new Error('Google Maps JavaScript API failed to load.'));
-    };
-
-    document.head.appendChild(script);
-  });
-
-  return window[GOOGLE_MAPS_PROMISE_KEY];
-}
-
-async function geocodeBusiness(geocoder, business) {
-  const businessName = business?.name?.trim() || 'Unnamed business';
-  const address = business?.address?.trim();
-
-  if (!address) {
-    console.warn(`Skipping "${businessName}" because it is missing an address.`);
-    return null;
-  }
-
-  const cacheKey = address.toLowerCase();
-
-  if (geocodeCache.has(cacheKey)) {
-    return geocodeCache.get(cacheKey);
-  }
-
-  const geocodePromise = geocoder
-    .geocode({ address })
-    .then(({ results }) => {
-      const firstResult = results?.[0];
-
-      if (!firstResult?.geometry?.location) {
-        console.error(`Geocoding failed for "${businessName}" at "${address}".`);
-        return null;
+    const handleLoad = () => {
+      if (window.L?.map) {
+        cleanup();
+        resolve(window.L);
+        return;
       }
 
-      return {
-        name: businessName,
-        address: firstResult.formatted_address || address,
-        position: {
-          lat: firstResult.geometry.location.lat(),
-          lng: firstResult.geometry.location.lng(),
-        },
-      };
-    })
-    .catch((error) => {
-      console.error(`Geocoding failed for "${businessName}" at "${address}":`, error);
-      return null;
-    });
+      handleError(new Error('Leaflet loaded without exposing the map API.'));
+    };
 
-  geocodeCache.set(cacheKey, geocodePromise);
-  return geocodePromise;
+    const handleError = (error) => {
+      cleanup();
+      delete window[LEAFLET_PROMISE_KEY];
+      reject(error instanceof Error ? error : new Error('Leaflet failed to load.'));
+    };
+
+    if (!stylesheet) {
+      stylesheet = document.createElement('link');
+      stylesheet.id = LEAFLET_STYLESHEET_ID;
+      stylesheet.rel = 'stylesheet';
+      stylesheet.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(stylesheet);
+    }
+
+    if (!script) {
+      script = document.createElement('script');
+      script.id = LEAFLET_SCRIPT_ID;
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    script.addEventListener('load', handleLoad);
+    script.addEventListener('error', handleError);
+
+    if (window.L?.map) {
+      handleLoad();
+    }
+  });
+
+  return window[LEAFLET_PROMISE_KEY];
 }
 
-function buildInfoWindowContent(business) {
-  return `
-    <div style="color:#0f172a;padding:4px 2px;max-width:240px;">
-      <h2 style="margin:0 0 8px;font-size:16px;font-weight:700;">
-        ${escapeHtml(business.name)}
-      </h2>
-      <p style="margin:0;font-size:14px;line-height:1.5;">
-        ${escapeHtml(business.address)}
-      </p>
-    </div>
-  `;
+async function fetchDealsFeed(zip, signal) {
+  const response = await fetch(`/api/feed?zip=${encodeURIComponent(zip)}&type=DEAL`, {
+    cache: 'no-store',
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load deals.');
+  }
+
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
 }
 
 export default function Deals() {
@@ -148,9 +111,6 @@ export default function Deals() {
   const { zip } = profile;
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mapStatus, setMapStatus] = useState('loading');
-  const [mapMessage, setMapMessage] = useState('Loading business map...');
-  const [markerCount, setMarkerCount] = useState(0);
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -160,184 +120,92 @@ export default function Deals() {
       return;
     }
 
-    let cancelled = false;
+    const controller = new AbortController();
 
     setLoading(true);
 
-    fetch(`/api/feed?zip=${zip}&type=DEAL`)
-      .then((res) => res.json())
+    fetchDealsFeed(zip, controller.signal)
       .then((data) => {
-        if (cancelled) {
-          return;
-        }
-
-        setPosts(Array.isArray(data) ? data : []);
+        setPosts(data);
         setLoading(false);
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setLoading(false);
         }
       });
 
+    const stream = new EventSource(`/api/feed/stream?zip=${encodeURIComponent(zip)}&type=DEAL`);
+
+    stream.addEventListener('feed-changed', () => {
+      void fetchDealsFeed(zip)
+        .then((data) => {
+          setPosts(data);
+          setLoading(false);
+        })
+        .catch(() => {});
+    });
+
     return () => {
-      cancelled = true;
+      controller.abort();
+      stream.close();
     };
   }, [zip]);
 
   useEffect(() => {
     let cancelled = false;
+    let mapInstance = null;
 
-    async function loadBusinessesMap() {
+    const initializeMap = async () => {
       if (!mapRef.current) {
         return;
       }
 
-      setMarkerCount(0);
-
-      if (!GOOGLE_MAPS_API_KEY) {
-        setMapStatus('error');
-        setMapMessage('Add VITE_GOOGLE_MAPS_API_KEY to your .env.local file to load the map.');
-        return;
-      }
-
-      setMapStatus('loading');
-      setMapMessage(`Loading businesses near ${SCHOOLCRAFT_LOCATION_LABEL}...`);
-
       try {
-        const businessResponse = await fetch(BUSINESS_FILE_PATH, { cache: 'no-store' });
-
-        if (!businessResponse.ok) {
-          throw new Error(`Could not load ${BUSINESS_FILE_PATH}.`);
-        }
-
-        const allBusinesses = await businessResponse.json();
-
-        if (!Array.isArray(allBusinesses)) {
-          throw new Error('The businesses file must contain a JSON array.');
-        }
-
-        const likelyLocalBusinesses = allBusinesses.filter(looksLocalToSchoolcraft);
-
-        if (likelyLocalBusinesses.length === 0) {
-          setMapStatus('empty');
-          setMapMessage(`No Michigan businesses were found in ${BUSINESS_FILE_PATH}.`);
-          return;
-        }
-
-        await loadGoogleMapsApi();
-
-        const [{ Map, InfoWindow }, { AdvancedMarkerElement, PinElement }, { Geocoder }] = await Promise.all([
-          google.maps.importLibrary('maps'),
-          google.maps.importLibrary('marker'),
-          google.maps.importLibrary('geocoding'),
-        ]);
+        const leaflet = await loadLeaflet();
 
         if (cancelled || !mapRef.current) {
           return;
         }
 
-        mapRef.current.innerHTML = '';
-
-        const map = new Map(mapRef.current, {
-          center: SCHOOLCRAFT_COLLEGE_CENTER,
-          zoom: 11,
-          mapId: DEFAULT_MAP_ID,
-          streetViewControl: false,
-          mapTypeControl: false,
-          fullscreenControl: false,
-        });
-        const geocoder = new Geocoder();
-        const infoWindow = new InfoWindow({ ariaLabel: 'Business details' });
-        const bounds = new google.maps.LatLngBounds();
-        let successfulMarkers = 0;
-
-        // Geocode each address one by one so the logic stays easy to follow.
-        for (const business of likelyLocalBusinesses) {
-          if (cancelled) {
-            return;
-          }
-
-          const geocodedBusiness = await geocodeBusiness(geocoder, business);
-
-          if (!geocodedBusiness) {
-            continue;
-          }
-
-          const distanceFromSchoolcraft = getDistanceInMiles(
-            SCHOOLCRAFT_COLLEGE_CENTER,
-            geocodedBusiness.position,
-          );
-
-          if (distanceFromSchoolcraft > LOCAL_BUSINESS_RADIUS_MILES) {
-            continue;
-          }
-
-          const pin = new PinElement({
-            background: '#674EA7',
-            borderColor: '#FFFFFF',
-            glyphColor: '#FFFFFF',
-            scale: 1.1,
-          });
-
-          const marker = new AdvancedMarkerElement({
-            map,
-            position: geocodedBusiness.position,
-            title: geocodedBusiness.name,
-            content: pin.element,
-          });
-
-          marker.addListener('click', () => {
-            infoWindow.setContent(buildInfoWindowContent(geocodedBusiness));
-            infoWindow.open({
-              map,
-              anchor: marker,
-            });
-          });
-
-          bounds.extend(geocodedBusiness.position);
-          successfulMarkers += 1;
-        }
-
-        if (cancelled) {
-          return;
-        }
-
-        if (successfulMarkers === 0) {
-          setMapStatus('empty');
-          setMapMessage(
-            `No businesses within ${LOCAL_BUSINESS_RADIUS_MILES} miles of ${SCHOOLCRAFT_LOCATION_LABEL} could be mapped.`,
-          );
-          return;
-        }
-
-        map.fitBounds(bounds, 80);
-
-        google.maps.event.addListenerOnce(map, 'idle', () => {
-          if (map.getZoom() > 15) {
-            map.setZoom(15);
-          }
+        mapInstance = leaflet.map(mapRef.current, {
+          center: MAP_CENTER,
+          zoom: MAP_ZOOM,
+          zoomControl: true,
+          scrollWheelZoom: true,
         });
 
-        setMarkerCount(successfulMarkers);
-        setMapStatus('ready');
-        setMapMessage(
-          `${successfulMarkers} local business marker${successfulMarkers === 1 ? '' : 's'} loaded near ${SCHOOLCRAFT_LOCATION_LABEL}.`,
-        );
+        leaflet.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+          subdomains: 'abcd',
+        }).addTo(mapInstance);
+
+        const bounds = leaflet.latLngBounds([]);
+
+        LOCAL_MARKERS.forEach((business) => {
+          const marker = leaflet
+            .marker([business.lat, business.lng])
+            .addTo(mapInstance)
+            .bindPopup(`<strong>${business.name}</strong>`);
+
+          bounds.extend(marker.getLatLng());
+        });
+
+        bounds.extend(MAP_CENTER);
+        mapInstance.fitBounds(bounds, { padding: [28, 28] });
       } catch (error) {
-        console.error('Failed to load the business map:', error);
-
-        if (!cancelled) {
-          setMapStatus('error');
-          setMapMessage('The map could not load. Check your Google Maps API key and make sure Maps JavaScript API and Geocoding API are enabled.');
-        }
+        console.error('Failed to initialize local map:', error);
       }
-    }
+    };
 
-    void loadBusinessesMap();
+    void initializeMap();
 
     return () => {
       cancelled = true;
+
+      if (mapInstance) {
+        mapInstance.remove();
+      }
     };
   }, []);
 
@@ -369,25 +237,10 @@ export default function Deals() {
 
         <div className="relative rounded-[28px] overflow-hidden border border-white/20 bg-slate-200 min-h-[420px]">
           <div ref={mapRef} className="h-[420px] w-full" />
-
-          {mapStatus !== 'ready' ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 bg-slate-900/65 backdrop-blur-sm">
-              {mapStatus === 'loading' ? (
-                <Loader2 className="animate-spin text-white mb-4" size={40} />
-              ) : (
-                <MapPinned className="text-white mb-4" size={40} />
-              )}
-              <p className="text-white font-black uppercase tracking-[0.2em] text-xs mb-2">
-                {mapStatus === 'loading' ? 'Building your map...' : 'Map needs attention'}
-              </p>
-              <p className="text-white font-medium max-w-md">{mapMessage}</p>
-            </div>
-          ) : null}
         </div>
 
         <p className="text-white text-sm font-medium mt-4 leading-relaxed">
-          Click a marker to see the business name and full address. The map starts in the local area, skips bad addresses
-          automatically, and logs geocoding failures in the browser console.
+          Browse the surrounding area directly on the map while you check the latest local deals below.
         </p>
       </section>
 

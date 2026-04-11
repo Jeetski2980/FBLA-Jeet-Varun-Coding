@@ -15,6 +15,9 @@ async function startServer() { // Boot the API and Vite server
   const PORT = Number(process.env.PORT) || 3000;
   const dataDirectory = path.join(process.cwd(), 'server', 'data');
   const homeStatsClients = new Set(); // Open SSE connections
+  const reviewStreamClients = new Map();
+  const businessPostStreamClients = new Map();
+  const feedStreamClients = new Set();
   const staticSitemapRoutes = [
     { path: '/', priority: '1.0', changefreq: 'daily' },
     { path: '/feed', priority: '0.9', changefreq: 'daily' },
@@ -69,6 +72,89 @@ async function startServer() { // Boot the API and Vite server
     res.write(`data: ${JSON.stringify(payload)}\n\n`);
   };
 
+  const initializeSse = (res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders?.();
+    res.write('retry: 5000\n\n');
+  };
+
+  const addScopedSseClient = (clientMap, scope, res) => {
+    const clients = clientMap.get(scope) || new Set();
+    clients.add(res);
+    clientMap.set(scope, clients);
+  };
+
+  const removeScopedSseClient = (clientMap, scope, res) => {
+    const clients = clientMap.get(scope);
+
+    if (!clients) {
+      return;
+    }
+
+    clients.delete(res);
+
+    if (clients.size === 0) {
+      clientMap.delete(scope);
+    }
+  };
+
+  const attachSseHeartbeat = (req, res, removeClient) => {
+    const heartbeat = setInterval(() => {
+      res.write(': keepalive\n\n');
+    }, 30000);
+
+    req.on('close', () => {
+      clearInterval(heartbeat);
+      removeClient();
+      res.end();
+    });
+  };
+
+  const broadcastReviewChange = (businessId) => {
+    const clients = reviewStreamClients.get(businessId);
+
+    if (!clients) {
+      return;
+    }
+
+    for (const client of clients) {
+      writeSseEvent(client, 'reviews-changed', { businessId });
+    }
+  };
+
+  const broadcastBusinessPostChange = (businessId) => {
+    if (!businessId) {
+      return;
+    }
+
+    const clients = businessPostStreamClients.get(businessId);
+
+    if (!clients) {
+      return;
+    }
+
+    for (const client of clients) {
+      writeSseEvent(client, 'posts-changed', { businessId });
+    }
+  };
+
+  const broadcastFeedChange = ({ zip, type }) => {
+    for (const client of feedStreamClients) {
+      if (client.zip && client.zip !== zip) {
+        continue;
+      }
+
+      if (client.type && client.type !== type) {
+        continue;
+      }
+
+      writeSseEvent(client.res, 'feed-changed', { zip, type });
+    }
+  };
+
   const broadcastHomeStats = async () => { // Push fresh stats to clients
     try {
       const stats = await getHomeStats();
@@ -112,12 +198,7 @@ async function startServer() { // Boot the API and Vite server
   });
 
   app.get('/api/home/stats/stream', async (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache, no-transform');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
-    res.flushHeaders?.();
-    res.write('retry: 5000\n\n');
+    initializeSse(res);
 
     homeStatsClients.add(res);
 
@@ -129,14 +210,8 @@ async function startServer() { // Boot the API and Vite server
       writeSseEvent(res, 'home-stats-error', { message: 'Failed to load home stats' });
     }
 
-    const heartbeat = setInterval(() => {
-      res.write(': keepalive\n\n');
-    }, 30000);
-
-    req.on('close', () => {
-      clearInterval(heartbeat);
+    attachSseHeartbeat(req, res, () => {
       homeStatsClients.delete(res);
-      res.end();
     });
   });
 
@@ -151,12 +226,7 @@ async function startServer() { // Boot the API and Vite server
   });
 
   app.get('/api/users/count/stream', async (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache, no-transform');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
-    res.flushHeaders?.();
-    res.write('retry: 5000\n\n');
+    initializeSse(res);
 
     homeStatsClients.add(res);
 
@@ -168,14 +238,39 @@ async function startServer() { // Boot the API and Vite server
       writeSseEvent(res, 'user-count-error', { message: 'Failed to load user count' });
     }
 
-    const heartbeat = setInterval(() => {
-      res.write(': keepalive\n\n');
-    }, 30000);
-
-    req.on('close', () => {
-      clearInterval(heartbeat);
+    attachSseHeartbeat(req, res, () => {
       homeStatsClients.delete(res);
-      res.end();
+    });
+  });
+
+  app.get('/api/businesses/:id/reviews/stream', (req, res) => {
+    initializeSse(res);
+    addScopedSseClient(reviewStreamClients, req.params.id, res);
+    writeSseEvent(res, 'reviews-ready', { businessId: req.params.id });
+    attachSseHeartbeat(req, res, () => {
+      removeScopedSseClient(reviewStreamClients, req.params.id, res);
+    });
+  });
+
+  app.get('/api/businesses/:id/posts/stream', (req, res) => {
+    initializeSse(res);
+    addScopedSseClient(businessPostStreamClients, req.params.id, res);
+    writeSseEvent(res, 'posts-ready', { businessId: req.params.id });
+    attachSseHeartbeat(req, res, () => {
+      removeScopedSseClient(businessPostStreamClients, req.params.id, res);
+    });
+  });
+
+  app.get('/api/feed/stream', (req, res) => {
+    const zip = typeof req.query.zip === 'string' ? req.query.zip : '';
+    const type = typeof req.query.type === 'string' ? req.query.type : '';
+    const client = { res, zip, type };
+
+    initializeSse(res);
+    feedStreamClients.add(client);
+    writeSseEvent(res, 'feed-ready', { zip, type });
+    attachSseHeartbeat(req, res, () => {
+      feedStreamClients.delete(client);
     });
   });
 
@@ -327,6 +422,8 @@ async function startServer() { // Boot the API and Vite server
 
     posts.push(newPost);
     await writeData('posts.json', posts);
+    broadcastBusinessPostChange(newPost.businessId);
+    broadcastFeedChange({ zip: newPost.zip, type: newPost.type });
     res.status(201).json(newPost);
   });
 
@@ -343,6 +440,8 @@ async function startServer() { // Boot the API and Vite server
 
     posts[index] = { ...posts[index], ...req.body, updatedAt: new Date().toISOString() };
     await writeData('posts.json', posts);
+    broadcastBusinessPostChange(posts[index].businessId);
+    broadcastFeedChange({ zip: posts[index].zip, type: posts[index].type });
     res.json(posts[index]);
   });
 
@@ -359,6 +458,8 @@ async function startServer() { // Boot the API and Vite server
 
     const filtered = posts.filter(p => p.id !== req.params.id);
     await writeData('posts.json', filtered);
+    broadcastBusinessPostChange(post.businessId);
+    broadcastFeedChange({ zip: post.zip, type: post.type });
     res.json({ message: 'Post deleted' });
   });
 
@@ -387,6 +488,7 @@ async function startServer() { // Boot the API and Vite server
     // Prepend to array
     posts.unshift(newDeal);
     await writeData('posts.json', posts);
+    broadcastFeedChange({ zip: newDeal.zip, type: newDeal.type });
     res.status(201).json(newDeal);
   });
 
@@ -431,6 +533,7 @@ async function startServer() { // Boot the API and Vite server
 
     reviews.push(newReview);
     await writeData('reviews.json', reviews);
+    broadcastReviewChange(newReview.businessId);
     res.status(201).json(newReview);
   });
 
@@ -460,6 +563,7 @@ async function startServer() { // Boot the API and Vite server
 
     const filtered = reviews.filter(r => r.id !== req.params.id);
     await writeData('reviews.json', filtered);
+    broadcastReviewChange(review.businessId);
     res.json({ message: 'Review deleted' });
   });
 
@@ -474,6 +578,7 @@ async function startServer() { // Boot the API and Vite server
     reviews[index].businessReply = reply;
     reviews[index].repliedAt = new Date().toISOString();
     await writeData('reviews.json', reviews);
+    broadcastReviewChange(reviews[index].businessId);
     res.json(reviews[index]);
   });
 
@@ -504,13 +609,18 @@ async function startServer() { // Boot the API and Vite server
     reviews[index].status = 'VERIFIED';
     reviews[index].verifiedAt = new Date().toISOString();
     await writeData('reviews.json', reviews);
+    broadcastReviewChange(reviews[index].businessId);
     res.json(reviews[index]);
   });
 
   app.delete('/api/admin/reviews/:id', async (req, res) => {
     const reviews = await readData('reviews.json');
+    const review = reviews.find(r => r.id === req.params.id);
     const filtered = reviews.filter(r => r.id !== req.params.id);
     await writeData('reviews.json', filtered);
+    if (review) {
+      broadcastReviewChange(review.businessId);
+    }
     res.json({ message: 'Review deleted' });
   });
 

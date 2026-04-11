@@ -7,6 +7,97 @@ import ReviewCard from '../components/ReviewCard';
 import FeedCard from '../components/FeedCard';
 import { VERIFICATION_QUESTIONS } from '../constants';
 
+async function fetchBusinessRecord(id, signal) {
+  const response = await fetch(`/api/businesses/${id}`, {
+    cache: 'no-store',
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load business.');
+  }
+
+  return response.json();
+}
+
+async function fetchBusinessReviews(id, signal) {
+  const response = await fetch(`/api/businesses/${id}/reviews`, {
+    cache: 'no-store',
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load reviews.');
+  }
+
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
+}
+
+async function fetchBusinessPosts(id, signal) {
+  const response = await fetch(`/api/businesses/${id}/posts`, {
+    cache: 'no-store',
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load posts.');
+  }
+
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
+}
+
+function normalizeReview(review) {
+  return {
+    ...review,
+    username: review.reviewedBy || review.username || 'Anonymous',
+  };
+}
+
+function addReviewToBusinessStats(currentBusiness, review) {
+  if (!currentBusiness) {
+    return currentBusiness;
+  }
+
+  const currentReviewCount = Number(currentBusiness.reviewCount) || 0;
+  const currentAverage = Number(currentBusiness.avgRating) || 0;
+  const nextReviewCount = currentReviewCount + 1;
+  const nextAverage = ((currentAverage * currentReviewCount) + Number(review.rating || 0)) / nextReviewCount;
+
+  return {
+    ...currentBusiness,
+    reviewCount: nextReviewCount,
+    avgRating: nextAverage,
+  };
+}
+
+function removeReviewFromBusinessStats(currentBusiness, review) {
+  if (!currentBusiness) {
+    return currentBusiness;
+  }
+
+  const currentReviewCount = Number(currentBusiness.reviewCount) || 0;
+
+  if (currentReviewCount <= 1) {
+    return {
+      ...currentBusiness,
+      reviewCount: 0,
+      avgRating: 0,
+    };
+  }
+
+  const currentAverage = Number(currentBusiness.avgRating) || 0;
+  const nextReviewCount = currentReviewCount - 1;
+  const nextAverage = ((currentAverage * currentReviewCount) - Number(review.rating || 0)) / nextReviewCount;
+
+  return {
+    ...currentBusiness,
+    reviewCount: nextReviewCount,
+    avgRating: nextAverage,
+  };
+}
+
 export default function BusinessProfile() {
   const { id } = useParams();
   const { profile, toggleSavedBusiness, isBusinessSaved } = useProfile();
@@ -36,24 +127,85 @@ export default function BusinessProfile() {
   const [postSubmitting, setPostSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchData();
     const randomQ = VERIFICATION_QUESTIONS[Math.floor(Math.random() * VERIFICATION_QUESTIONS.length)];
     setCurrentQuestion(randomQ);
   }, [id]);
 
-  const fetchData = () => { // Load the profile, reviews, and posts
-    setLoading(true);
-    Promise.all([
-      fetch(`/api/businesses/${id}`).then(res => res.json()),
-      fetch(`/api/businesses/${id}/reviews`).then(res => res.json()),
-      fetch(`/api/businesses/${id}/posts`).then(res => res.json())
-    ]).then(([bData, rData, pData]) => {
-      setBusiness(bData);
-      setReviews(rData);
-      setPosts(pData);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  };
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+
+    const refreshBusinessAndReviews = async () => {
+      const [businessData, reviewData] = await Promise.all([
+        fetchBusinessRecord(id),
+        fetchBusinessReviews(id),
+      ]);
+
+      if (cancelled) {
+        return;
+      }
+
+      setBusiness(businessData);
+      setReviews(reviewData);
+    };
+
+    const refreshPosts = async () => {
+      const postData = await fetchBusinessPosts(id);
+
+      if (cancelled) {
+        return;
+      }
+
+      setPosts(postData);
+    };
+
+    const loadProfile = async () => {
+      setLoading(true);
+
+      try {
+        const [businessData, reviewData, postData] = await Promise.all([
+          fetchBusinessRecord(id, controller.signal),
+          fetchBusinessReviews(id, controller.signal),
+          fetchBusinessPosts(id, controller.signal),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setBusiness(businessData);
+        setReviews(reviewData);
+        setPosts(postData);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setBusiness(null);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadProfile();
+
+    const reviewStream = new EventSource(`/api/businesses/${id}/reviews/stream`);
+    reviewStream.addEventListener('reviews-changed', () => {
+      void refreshBusinessAndReviews().catch(() => {});
+    });
+
+    const postStream = new EventSource(`/api/businesses/${id}/posts/stream`);
+    postStream.addEventListener('posts-changed', () => {
+      void refreshPosts().catch(() => {});
+    });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      reviewStream.close();
+      postStream.close();
+    };
+  }, [id]);
 
   const handleToggleSave = () => {
     if (!business) return;
@@ -88,12 +240,14 @@ export default function BusinessProfile() {
       const data = await res.json();
       
       if (res.ok) {
+        const nextReview = normalizeReview(data);
         setMessage({ type: 'success', text: 'Review submitted! It is now live.' });
         setComment('');
         setVerification('');
+        setReviews((prev) => [nextReview, ...prev.filter((review) => review.id !== nextReview.id)]);
+        setBusiness((prev) => addReviewToBusinessStats(prev, nextReview));
         const randomQ = VERIFICATION_QUESTIONS[Math.floor(Math.random() * VERIFICATION_QUESTIONS.length)];
         setCurrentQuestion(randomQ);
-        fetchData();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to submit review' });
       }
@@ -105,7 +259,13 @@ export default function BusinessProfile() {
   };
 
   const handleDeleteReview = (reviewId) => {
+    const deletedReview = reviews.find((review) => review.id === reviewId);
+
     setReviews(prev => prev.filter(r => r.id !== reviewId));
+
+    if (deletedReview) {
+      setBusiness((prev) => removeReviewFromBusinessStats(prev, deletedReview));
+    }
   };
 
   const handleReplyReview = (updatedReview) => {
@@ -123,9 +283,10 @@ export default function BusinessProfile() {
         body: JSON.stringify({ ...postData, createdByUsername: profile.username })
       });
       if (res.ok) {
+        const newPost = await res.json();
         setPostData({ type: 'UPDATE', title: '', body: '', imageUrl: '', couponCode: '', expiresAt: '' });
         setShowPostForm(false);
-        fetchData();
+        setPosts((prev) => [newPost, ...prev.filter((post) => post.id !== newPost.id)]);
       }
     } catch (err) {
       console.error(err);
